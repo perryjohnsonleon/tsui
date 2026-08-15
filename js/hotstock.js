@@ -545,15 +545,15 @@
     }
 	
 	async function showRealprice(stockNo) {
-		window.location.href = 'http://127.0.0.1:8000/winder/tickchart.htm?stockid=' + stockNo ;
+		window.location.href = 'https://perryjohnsonleon.github.io/tsui/tickchart.htm?stockid=' + stockNo ;
     }
 	
 	async function alarmPrice(stockNo) {
-		window.location.href = 'http://127.0.0.1:8000/winder/testalarm.htm?stockid=' + stockNo ;
+		window.location.href = 'https://perryjohnsonleon.github.io/tsui/testalarm.htm?stockid=' + stockNo ;
     }	
 	
 	async function countProfit(stockNo) {
-		window.location.href = 'http://127.0.0.1:8000/winder/cal.htm?stockid=' + stockNo ;
+		window.location.href = 'https://perryjohnsonleon.github.io/tsui/cal.htm?stockid=' + stockNo ;
     }
 
 	function collapseElement() {
