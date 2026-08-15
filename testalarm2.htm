@@ -217,28 +217,53 @@
   }
   .close-btn:hover{background:var(--panel-2);color:var(--text-1);}
   .field-label{font-size:11.5px;color:var(--text-2);letter-spacing:.4px;text-transform:uppercase;margin-bottom:8px;display:block;}
-  .dir-toggle{display:flex;gap:8px;}
-  .dir-btn{
-    flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);
-    background:var(--panel-2);color:var(--text-2);font-family:'Inter';font-size:13px;font-weight:500;
-    cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;
-    transition:all .15s ease;
+  .alert-block{
+    display:flex;flex-direction:column;gap:10px;
+    padding:14px;border:1px solid var(--border);border-radius:10px;
+    background:var(--panel-2);
   }
-  .dir-btn svg{width:14px;height:14px;}
-  .dir-btn.selected.rise{border-color:var(--gain);color:var(--gain);background:var(--gain-dim);}
-  .dir-btn.selected.fall{border-color:var(--loss);color:var(--loss);background:var(--loss-dim);}
+  .alert-block-head{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .alert-block-title{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:500;color:var(--text-1);}
+  .alert-block-title svg{width:15px;height:15px;}
+  .alert-block.rise .alert-block-title svg{color:var(--gain);}
+  .alert-block.fall .alert-block-title svg{color:var(--loss);}
+
+  .switch{position:relative;display:inline-block;width:38px;height:22px;flex:none;}
+  .switch input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer;}
+  .switch .track{
+    position:absolute;inset:0;background:var(--border);border-radius:20px;
+    transition:background .15s ease;pointer-events:none;
+  }
+  .switch .thumb{
+    position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;
+    background:var(--text-2);transition:transform .15s ease, background .15s ease;
+  }
+  .switch.rise input:checked ~ .track{background:var(--gain-dim);}
+  .switch.rise input:checked ~ .track .thumb{transform:translateX(16px);background:var(--gain);}
+  .switch.fall input:checked ~ .track{background:var(--loss-dim);}
+  .switch.fall input:checked ~ .track .thumb{transform:translateX(16px);background:var(--loss);}
+
   .price-input{
     width:100%;padding:11px 12px;border-radius:8px;border:1px solid var(--border);
-    background:var(--panel-2);color:var(--text-1);font-family:'JetBrains Mono',monospace;
+    background:var(--panel);color:var(--text-1);font-family:'JetBrains Mono',monospace;
     font-size:16px;outline:none;
   }
   .price-input:focus{border-color:var(--text-3);}
+  .price-input:disabled{opacity:.45;}
   .save-btn{
     padding:12px;border-radius:8px;border:1px solid var(--amber);background:var(--amber-dim);
     color:var(--amber);font-family:'Inter';font-weight:600;font-size:13.5px;cursor:pointer;
   }
   .save-btn:hover{background:rgba(255,176,32,0.22);}
   .drawer-note{font-size:11.5px;color:var(--text-3);line-height:1.5;}
+
+  .alert-line{display:flex;align-items:center;gap:6px;}
+
+  .gauge-row + .gauge-row{margin-top:18px;padding-top:16px;border-top:1px solid var(--border);}
+  .gauge-row-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;}
+  .gauge-row-label{font-size:12.5px;font-weight:500;color:var(--text-1);}
+  .gauge-row-label.rise{color:var(--gain);}
+  .gauge-row-label.fall{color:var(--loss);}
 
   @media (max-width:640px){
     body{padding:12px 12px 40px;}
@@ -309,8 +334,15 @@
       </span>
     </div>
     <div class="alert-status">
-      <div class="row"><span class="alert-armed-dot" id="armedDot"></span><span id="alertStatusText">No alert set</span></div>
-      <div class="row">Target <span class="target-val" id="targetDisplay">—</span></div>
+      <div class="alert-line" id="riseStatusLine" style="display:none;">
+        <span class="alert-armed-dot" id="riseArmedDot"></span>
+        <span>Rise to <span class="target-val" id="riseTargetDisplay">—</span></span>
+      </div>
+      <div class="alert-line" id="fallStatusLine" style="display:none;">
+        <span class="alert-armed-dot" id="fallArmedDot"></span>
+        <span>Fall to <span class="target-val" id="fallTargetDisplay">—</span></span>
+      </div>
+      <div class="alert-line" id="noAlertLine">No alert set</div>
     </div>
   </div>
 
@@ -328,17 +360,41 @@
   <div class="gauge-card">
     <div class="gauge-head">
       <span class="h">Progress to target</span>
-      <span class="gauge-pct mono" id="gaugePct">0%</span>
     </div>
-    <div class="gauge-track">
-      <div class="gauge-fill" id="gaugeFill"></div>
-      <div class="gauge-marker" id="gaugeMarker"></div>
+
+    <div class="gauge-row" id="riseGaugeRow" style="display:none;">
+      <div class="gauge-row-head">
+        <span class="gauge-row-label rise">Rise to <span id="riseGaugeTargetLbl">—</span></span>
+        <span class="gauge-pct mono" id="riseGaugePct">0%</span>
+      </div>
+      <div class="gauge-track">
+        <div class="gauge-fill rise" id="riseGaugeFill"></div>
+        <div class="gauge-marker" id="riseGaugeMarker"></div>
+      </div>
+      <div class="gauge-labels">
+        <span>Open <span class="val" id="riseGaugeOpen">184.20</span></span>
+        <span>Current <span class="val" id="riseGaugeCurrent">184.20</span></span>
+        <span>Target <span class="val" id="riseGaugeTargetVal">—</span></span>
+      </div>
     </div>
-    <div class="gauge-labels">
-      <span>Open <span class="val" id="gaugeOpen">184.20</span></span>
-      <span>Current <span class="val" id="gaugeCurrent">184.20</span></span>
-      <span>Target <span class="val" id="gaugeTarget">—</span></span>
+
+    <div class="gauge-row" id="fallGaugeRow" style="display:none;">
+      <div class="gauge-row-head">
+        <span class="gauge-row-label fall">Fall to <span id="fallGaugeTargetLbl">—</span></span>
+        <span class="gauge-pct mono" id="fallGaugePct">0%</span>
+      </div>
+      <div class="gauge-track">
+        <div class="gauge-fill" id="fallGaugeFill"></div>
+        <div class="gauge-marker" id="fallGaugeMarker"></div>
+      </div>
+      <div class="gauge-labels">
+        <span>Open <span class="val" id="fallGaugeOpen">184.20</span></span>
+        <span>Current <span class="val" id="fallGaugeCurrent">184.20</span></span>
+        <span>Target <span class="val" id="fallGaugeTargetVal">—</span></span>
+      </div>
     </div>
+
+    <p class="drawer-note" id="noGaugeMsg">No alert target set.</p>
   </div>
 
   <div class="overview-title">Market overview</div>
@@ -370,25 +426,42 @@
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg>
       </button>
     </div>
-    <div>
-      <label class="field-label">Expected direction</label>
-      <div class="dir-toggle">
-        <button class="dir-btn rise" id="dirRise">
+    <div class="alert-block rise">
+      <div class="alert-block-head">
+        <span class="alert-block-title">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
-          Rise
-        </button>
-        <button class="dir-btn fall" id="dirFall">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
-          Fall
-        </button>
+          Rise alert
+        </span>
+        <label class="switch rise">
+          <input type="checkbox" id="riseEnabledInput">
+          <span class="track"><span class="thumb"></span></span>
+        </label>
+      </div>
+      <div>
+        <label class="field-label" for="riseTargetInput">Target price (USD)</label>
+        <input class="price-input mono" type="number" id="riseTargetInput" step="0.01" value="190.00">
       </div>
     </div>
-    <div>
-      <label class="field-label" for="targetInput">Target price (USD)</label>
-      <input class="price-input mono" type="number" id="targetInput" step="0.01" value="190.00">
+
+    <div class="alert-block fall">
+      <div class="alert-block-head">
+        <span class="alert-block-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+          Fall alert
+        </span>
+        <label class="switch fall">
+          <input type="checkbox" id="fallEnabledInput">
+          <span class="track"><span class="thumb"></span></span>
+        </label>
+      </div>
+      <div>
+        <label class="field-label" for="fallTargetInput">Target price (USD)</label>
+        <input class="price-input mono" type="number" id="fallTargetInput" step="0.01" value="178.00">
+      </div>
     </div>
+
     <button class="save-btn" id="saveAlert">Save alert</button>
-    <p class="drawer-note">When VRA reaches the target price in the expected direction, a chimebell alert rings for two minutes. Enable chime with the header button.</p>
+    <p class="drawer-note">Turn on either alert, or both at once. When VRA reaches a target in its expected direction, a chimebell alert rings for two minutes — rise plays an ascending sine chime, fall plays a descending triangle chime. Enable chime with the header button.</p>
   </div>
 </div>
 
@@ -400,13 +473,13 @@
     dayHigh: 184.20,
     dayLow: 184.20,
     history: [184.20],
-    direction: 'rise',
-    target: 190.00,
+    rise: { enabled: true, target: 190.00, prevHit: false },
+    fall: { enabled: false, target: 178.00, prevHit: false },
     chimeOn: true,
-    prevHit: false,
-    ringing: false,
-    ringEndAt: 0,
-    ringTimer: null,
+    ring: {
+      rise: { ringing: false, endAt: 0, timer: null },
+      fall: { ringing: false, endAt: 0, timer: null }
+    },
     activeNodes: []
   };
 
@@ -478,66 +551,95 @@
   }
 
   var RING_DURATION_MS = 2 * 60 * 1000;
-  function startRinging(){
-    if (state.ringing) return;
-    state.ringing = true;
-    state.ringEndAt = Date.now() + RING_DURATION_MS;
-    ringLoop();
+  function startRinging(dir){
+    var r = state.ring[dir];
+    if (r.ringing) return;
+    r.ringing = true;
+    r.endAt = Date.now() + RING_DURATION_MS;
+    ringLoop(dir);
   }
-  function ringLoop(){
-    if (!state.chimeOn || Date.now() >= state.ringEndAt){
-      state.ringing = false;
+  function ringLoop(dir){
+    var r = state.ring[dir];
+    if (!state.chimeOn || Date.now() >= r.endAt){
+      r.ringing = false;
       return;
     }
-    playChime(12, state.direction);
-    state.ringTimer = setTimeout(ringLoop, 12 * 0.72 * 1000 + 300);
+    playChime(12, dir);
+    r.timer = setTimeout(function(){ ringLoop(dir); }, 12 * 0.72 * 1000 + 300);
   }
-  function stopRinging(){
-    state.ringing = false;
-    state.ringEndAt = 0;
-    if (state.ringTimer) clearTimeout(state.ringTimer);
+  function stopRinging(dir){
+    var r = state.ring[dir];
+    r.ringing = false;
+    r.endAt = 0;
+    if (r.timer) clearTimeout(r.timer);
+  }
+  function stopAllRinging(){
+    stopRinging('rise');
+    stopRinging('fall');
     silenceAllChimes();
   }
 
   var alertBtn = document.getElementById('alertBtn');
   var overlay = document.getElementById('overlay');
   var closeDrawer = document.getElementById('closeDrawer');
-  var dirRise = document.getElementById('dirRise');
-  var dirFall = document.getElementById('dirFall');
-  var targetInput = document.getElementById('targetInput');
+  var riseEnabledInput = document.getElementById('riseEnabledInput');
+  var fallEnabledInput = document.getElementById('fallEnabledInput');
+  var riseTargetInput = document.getElementById('riseTargetInput');
+  var fallTargetInput = document.getElementById('fallTargetInput');
   var saveAlert = document.getElementById('saveAlert');
   var chimeBtn = document.getElementById('chimeBtn');
   var chimeLabel = document.getElementById('chimeLabel');
 
-  var pendingDirection = state.direction;
-
-  function setDirButtons(){
-    dirRise.classList.toggle('selected', pendingDirection === 'rise');
-    dirFall.classList.toggle('selected', pendingDirection === 'fall');
+  function syncDrawerFromState(){
+    riseEnabledInput.checked = state.rise.enabled;
+    riseTargetInput.value = state.rise.target.toFixed(2);
+    riseTargetInput.disabled = !state.rise.enabled;
+    fallEnabledInput.checked = state.fall.enabled;
+    fallTargetInput.value = state.fall.target.toFixed(2);
+    fallTargetInput.disabled = !state.fall.enabled;
   }
-  setDirButtons();
+  riseEnabledInput.addEventListener('change', function(){
+    riseTargetInput.disabled = !riseEnabledInput.checked;
+  });
+  fallEnabledInput.addEventListener('change', function(){
+    fallTargetInput.disabled = !fallEnabledInput.checked;
+  });
 
   alertBtn.addEventListener('click', function(){
     getAudioCtx();
+    syncDrawerFromState();
     overlay.classList.add('open');
   });
   closeDrawer.addEventListener('click', function(){ overlay.classList.remove('open'); });
   overlay.addEventListener('click', function(e){ if (e.target === overlay) overlay.classList.remove('open'); });
 
-  dirRise.addEventListener('click', function(){ pendingDirection = 'rise'; setDirButtons(); });
-  dirFall.addEventListener('click', function(){ pendingDirection = 'fall'; setDirButtons(); });
-
   saveAlert.addEventListener('click', function(){
-    var v = parseFloat(targetInput.value);
-    if (isNaN(v) || v <= 0){
-      targetInput.style.borderColor = 'var(--gain)';
+    var riseOn = riseEnabledInput.checked;
+    var fallOn = fallEnabledInput.checked;
+    var riseVal = parseFloat(riseTargetInput.value);
+    var fallVal = parseFloat(fallTargetInput.value);
+
+    if (riseOn && (isNaN(riseVal) || riseVal <= 0)){
+      riseTargetInput.style.borderColor = 'var(--gain)';
       return;
     }
-    targetInput.style.borderColor = '';
-    state.direction = pendingDirection;
-    state.target = v;
-    state.prevHit = false;
-    stopRinging();
+    if (fallOn && (isNaN(fallVal) || fallVal <= 0)){
+      fallTargetInput.style.borderColor = 'var(--loss)';
+      return;
+    }
+    riseTargetInput.style.borderColor = '';
+    fallTargetInput.style.borderColor = '';
+
+    state.rise.enabled = riseOn;
+    if (riseOn) state.rise.target = riseVal;
+    state.rise.prevHit = false;
+    stopRinging('rise');
+
+    state.fall.enabled = fallOn;
+    if (fallOn) state.fall.target = fallVal;
+    state.fall.prevHit = false;
+    stopRinging('fall');
+
     updateAlertStatus();
     overlay.classList.remove('open');
   });
@@ -547,20 +649,31 @@
     state.chimeOn = !state.chimeOn;
     chimeBtn.classList.toggle('chime-on', state.chimeOn);
     chimeLabel.textContent = state.chimeOn ? 'Chime on' : 'Chime off';
-    if (!state.chimeOn) stopRinging();
+    if (!state.chimeOn) stopAllRinging();
   });
   chimeBtn.classList.add('chime-on');
 
-  var armedDot = document.getElementById('armedDot');
-  var alertStatusText = document.getElementById('alertStatusText');
-  var targetDisplay = document.getElementById('targetDisplay');
+  var riseArmedDot = document.getElementById('riseArmedDot');
+  var fallArmedDot = document.getElementById('fallArmedDot');
+  var riseStatusLine = document.getElementById('riseStatusLine');
+  var fallStatusLine = document.getElementById('fallStatusLine');
+  var noAlertLine = document.getElementById('noAlertLine');
+  var riseTargetDisplay = document.getElementById('riseTargetDisplay');
+  var fallTargetDisplay = document.getElementById('fallTargetDisplay');
 
   function updateAlertStatus(){
-    targetInput.value = state.target.toFixed(2);
-    targetDisplay.textContent = '$' + state.target.toFixed(2);
-    var dirWord = state.direction === 'rise' ? 'Rise to' : 'Fall to';
-    alertStatusText.textContent = dirWord + ' $' + state.target.toFixed(2);
-    armedDot.className = 'alert-armed-dot ' + (state.prevHit ? 'fired' : 'armed');
+    riseStatusLine.style.display = state.rise.enabled ? 'flex' : 'none';
+    fallStatusLine.style.display = state.fall.enabled ? 'flex' : 'none';
+    noAlertLine.style.display = (!state.rise.enabled && !state.fall.enabled) ? 'flex' : 'none';
+
+    if (state.rise.enabled){
+      riseTargetDisplay.textContent = '$' + state.rise.target.toFixed(2);
+      riseArmedDot.className = 'alert-armed-dot ' + (state.rise.prevHit ? 'fired' : 'armed');
+    }
+    if (state.fall.enabled){
+      fallTargetDisplay.textContent = '$' + state.fall.target.toFixed(2);
+      fallArmedDot.className = 'alert-armed-dot ' + (state.fall.prevHit ? 'fired' : 'armed');
+    }
   }
   updateAlertStatus();
 
@@ -619,43 +732,82 @@
     });
   }
 
-  var gaugeFill = document.getElementById('gaugeFill');
-  var gaugeMarker = document.getElementById('gaugeMarker');
-  var gaugePct = document.getElementById('gaugePct');
-  var gaugeOpen = document.getElementById('gaugeOpen');
-  var gaugeCurrent = document.getElementById('gaugeCurrent');
-  var gaugeTarget = document.getElementById('gaugeTarget');
+  var riseGaugeRow = document.getElementById('riseGaugeRow');
+  var riseGaugeFill = document.getElementById('riseGaugeFill');
+  var riseGaugeMarker = document.getElementById('riseGaugeMarker');
+  var riseGaugePct = document.getElementById('riseGaugePct');
+  var riseGaugeOpen = document.getElementById('riseGaugeOpen');
+  var riseGaugeCurrent = document.getElementById('riseGaugeCurrent');
+  var riseGaugeTargetVal = document.getElementById('riseGaugeTargetVal');
+  var riseGaugeTargetLbl = document.getElementById('riseGaugeTargetLbl');
+
+  var fallGaugeRow = document.getElementById('fallGaugeRow');
+  var fallGaugeFill = document.getElementById('fallGaugeFill');
+  var fallGaugeMarker = document.getElementById('fallGaugeMarker');
+  var fallGaugePct = document.getElementById('fallGaugePct');
+  var fallGaugeOpen = document.getElementById('fallGaugeOpen');
+  var fallGaugeCurrent = document.getElementById('fallGaugeCurrent');
+  var fallGaugeTargetVal = document.getElementById('fallGaugeTargetVal');
+  var fallGaugeTargetLbl = document.getElementById('fallGaugeTargetLbl');
+
+  var noGaugeMsg = document.getElementById('noGaugeMsg');
 
   function updateGauge(){
-    gaugeOpen.textContent = state.open.toFixed(2);
-    gaugeCurrent.textContent = state.price.toFixed(2);
-    gaugeTarget.textContent = '$' + state.target.toFixed(2);
+    riseGaugeRow.style.display = state.rise.enabled ? 'block' : 'none';
+    fallGaugeRow.style.display = state.fall.enabled ? 'block' : 'none';
+    noGaugeMsg.style.display = (!state.rise.enabled && !state.fall.enabled) ? 'block' : 'none';
 
-    var progress;
-    if (state.direction === 'rise'){
-      var span = state.target - state.open;
-      progress = span !== 0 ? (state.price - state.open) / span : 0;
-    } else {
-      var span2 = state.open - state.target;
-      progress = span2 !== 0 ? (state.open - state.price) / span2 : 0;
+    if (state.rise.enabled){
+      riseGaugeOpen.textContent = state.open.toFixed(2);
+      riseGaugeCurrent.textContent = state.price.toFixed(2);
+      riseGaugeTargetVal.textContent = '$' + state.rise.target.toFixed(2);
+      riseGaugeTargetLbl.textContent = '$' + state.rise.target.toFixed(2);
+      var riseSpan = state.rise.target - state.open;
+      var riseProgress = riseSpan !== 0 ? (state.price - state.open) / riseSpan : 0;
+      riseProgress = Math.max(0, Math.min(1, riseProgress));
+      var risePct = Math.round(riseProgress * 100) + '%';
+      riseGaugePct.textContent = risePct;
+      riseGaugeFill.style.width = risePct;
+      riseGaugeMarker.style.left = risePct;
     }
-    progress = Math.max(0, Math.min(1, progress));
-    var pctStr = Math.round(progress * 100) + '%';
-    gaugePct.textContent = pctStr;
-    gaugeFill.style.width = pctStr;
-    gaugeFill.classList.toggle('rise', state.direction === 'rise');
-    gaugeMarker.style.left = pctStr;
+
+    if (state.fall.enabled){
+      fallGaugeOpen.textContent = state.open.toFixed(2);
+      fallGaugeCurrent.textContent = state.price.toFixed(2);
+      fallGaugeTargetVal.textContent = '$' + state.fall.target.toFixed(2);
+      fallGaugeTargetLbl.textContent = '$' + state.fall.target.toFixed(2);
+      var fallSpan = state.open - state.fall.target;
+      var fallProgress = fallSpan !== 0 ? (state.open - state.price) / fallSpan : 0;
+      fallProgress = Math.max(0, Math.min(1, fallProgress));
+      var fallPct = Math.round(fallProgress * 100) + '%';
+      fallGaugePct.textContent = fallPct;
+      fallGaugeFill.style.width = fallPct;
+      fallGaugeMarker.style.left = fallPct;
+    }
   }
 
   function checkAlert(){
-    var hit = state.direction === 'rise' ? state.price >= state.target : state.price <= state.target;
-    if (hit && !state.prevHit){
-      if (state.chimeOn) startRinging();
-      armedDot.className = 'alert-armed-dot fired';
-    } else if (!hit) {
-      armedDot.className = 'alert-armed-dot armed';
+    if (state.rise.enabled){
+      var riseHit = state.price >= state.rise.target;
+      if (riseHit && !state.rise.prevHit){
+        if (state.chimeOn) startRinging('rise');
+        riseArmedDot.className = 'alert-armed-dot fired';
+      } else if (!riseHit) {
+        riseArmedDot.className = 'alert-armed-dot armed';
+      }
+      state.rise.prevHit = riseHit;
     }
-    state.prevHit = hit;
+
+    if (state.fall.enabled){
+      var fallHit = state.price <= state.fall.target;
+      if (fallHit && !state.fall.prevHit){
+        if (state.chimeOn) startRinging('fall');
+        fallArmedDot.className = 'alert-armed-dot fired';
+      } else if (!fallHit) {
+        fallArmedDot.className = 'alert-armed-dot armed';
+      }
+      state.fall.prevHit = fallHit;
+    }
   }
 
   var canvas = document.getElementById('priceCanvas');
