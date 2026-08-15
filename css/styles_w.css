@@ -1,0 +1,133 @@
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  background-color: #000;color:#fff;
+  }
+.wi-head , .item-head {
+   background-color: #003344;
+   color:white;
+   font-weight:bold;
+   font-size:16px;
+   border-width:1px;
+   border-style:solid;
+   border-color:#007799;
+   border-width:1px;
+   width:100%;
+  }
+<!-- .wi {color:ffb300;font-weight:bold;font-size:20px} --> 
+.head-items {
+  display:flex;
+}
+
+.p-item {
+  flex:none;
+  width:20%;
+  margin:5px ;
+}
+
+.s-item {
+  flex:none;
+  width:20%;
+  margin:5px ;
+}
+
+#myProgress1 {
+  width: 98%;
+  height:20px;
+  position:relative;
+  background-color: #007799;
+  }
+
+#myBar1 {
+  background-color: #f00;
+  height:20px;
+  position:absolute;
+  }
+
+.data-items {
+  display:flex ;
+  margin:5px ;
+}
+
+.items {
+  flex:none;
+  width:25%;
+}
+
+.wi,.item {
+ background-color:#003344;
+ color:#FFB300;
+ font-weight:bold;
+ font-size:16px;border-style:solid;
+ border-color:#007799;
+ border-width:1px;
+ width:100%;
+}
+
+#wrap {
+  background-color: #ddd;
+  height:20px;
+  position: absolute;
+  }
+
+
+.ymsitem {
+  display:none;
+}
+
+.risePrice {
+  color: #F30E4B;
+  }
+
+.fellPrice {
+  color: #1DC91D;
+  }
+
+.flatPrice {
+  color: #fff;
+  }
+
+ .wi-risePrice {
+  color: #F30E4B;
+  
+  }
+
+ .wi-fellPrice {
+  color: #1DC91D;
+  }
+
+ .wi-flatPrice {
+  color: #fff;
+  }
+
+ .wi-t {
+  font-size:1.5rem;
+  }
+
+ .highestPrice {
+  color:#FA0DF6;
+  }
+
+  .lowestPrice {
+  color:#A43CFF;
+  }
+
+  .wii-sum {
+  // font-size:1.75rem;
+  color:#FFB300;
+  }
+
+  .wii-diff {
+  // font-size:1.5rem;
+  color:#FFB300;
+  }
+
+  .wi-box {
+  font-size:1.2rem;
+  color:#FFB300;
+  }
+
+  .time-box {
+  font-size:1.75rem;
+  color:#FFB300;
+  }

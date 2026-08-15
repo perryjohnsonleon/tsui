@@ -1,0 +1,196 @@
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  background-color:#000;color:#fff;
+  }
+.wi-head , .item-head {
+  // background-color: #003344;
+   color:white;
+   font-weight:bold;
+   font-size:16px;
+   border-width:1px;
+   border-style:solid;
+   border-color:#103232;
+  // border-color:#007799;
+  // border-color:rgba(0, 0, 0)
+   border-width:1px;
+   width:100%;
+  }
+<!-- .wi {color:ffb300;font-weight:bold;font-size:20px} --> 
+.head-items {
+  display:flex;
+}
+
+ canvas {
+max-width: 800px;
+margin: 20px auto;
+display: block;
+}
+ .wi-box {
+	display:inline-block;
+	vertical-align: auto;
+	font-weight:bold;
+	font-size:12px;
+	color:#FFB300;
+   }
+
+.btn-expand {
+  margin:0px;
+  border:0px;
+  padding:2px;
+  color:#fff;
+// color:#0B0A0A;
+  font-weight:600 ;
+  background-color:rgba(96, 136, 136); 
+ // background-color:#007799; 
+  font-size:13px;
+  border: none;
+}	
+
+.btn2-expand {
+ color:#000;
+ background-color:#6a9595; 
+ border: none;
+}
+
+.btn-risePrice {
+  margin:0px;
+  border:0px;
+  padding:2px;
+  color: #F30E4B;
+  font-weight:600 ; 
+  background-color:#6a9595;
+  font-size:15px;  
+  border: none;
+ }
+
+.btn-fellPrice {
+  margin:0px;
+  border:0px;
+  padding:2px;
+  color: #1DC91D;
+  font-weight:600 ; 
+  background-color:#6a9595; 
+  font-size:15px; 
+  border: none;
+  }
+
+.btn-flatPrice {
+  margin:0px;
+  border:0px;
+  padding:2px;
+  color:#c3dbbd;
+  background-color:#6a9595;
+  font-size:15px;   
+  border: none;
+  }	
+
+.p-item {
+  flex:none;
+  width:3%;
+  margin:5px ;
+}
+
+.s-item {
+  flex:none;
+  width:20%;
+  margin:5px ;
+}
+
+#myProgress1 {
+  width: 98%;
+  height:20px;
+  position:relative;
+  background-color: #007799;
+  }
+
+#myBar1 {
+  background-color: #f00;
+  height:20px;
+  position:absolute;
+  }
+
+.data-items {
+  background-color:rgba(150, 212, 212, 0.4);	
+  display:flex ;
+  margin:5px ;
+}
+
+.items {
+  flex:none;
+  width:25%;
+}
+
+.wi,.item {
+ // background-color:#003344;
+ color:#FFB300;
+ font-weight:bold;
+ font-size:16px;border-style:solid;
+ border-color:#103232;
+ border-width:1px;
+ width:100%;
+}
+
+#wrap {
+  background-color: #ddd;
+  height:20px;
+  position: absolute;
+  }
+
+
+.ymsitem {
+  display:none;
+}
+
+  
+.risePrice {
+  color: #F30E4B;
+  }
+
+.fellPrice {
+  color: #1DC91D;
+  }
+
+.flatPrice {
+  color:#c3dbbd;
+  }
+
+ .wi-risePrice {
+  color: #F30E4B;
+  
+  }
+
+ .wi-fellPrice {
+  color: #1DC91D;
+  }
+
+ .wi-flatPrice {
+  color: #fff;
+  }
+
+ .wi-t {
+  font-size:1.5rem;
+  }
+
+ .highestPrice {
+  color:#FA0DF6;
+  }
+
+  .lowestPrice {
+  color:#A43CFF;
+  }
+
+  .wii-sum {
+  // font-size:1.75rem;
+  color:#FFB300;
+  }
+
+  .wii-diff {
+  // font-size:1.5rem;
+  color:#FFB300;
+  }
+
+  .time-box {
+  font-size:1.75rem;
+  color:#FFB300;
+  }

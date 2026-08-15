@@ -1,0 +1,347 @@
+  :root {
+    --bg: #080b10;
+    --surface: #0d1117;
+    --border: rgba(255,255,255,0.06);
+    --text: #e8eaf0;
+    --muted: #4a5068;
+    --gain: #ff1744;
+    --loss: #00e676;
+    --gain-dim: rgba(255,23,68,0.08);
+    --loss-dim: rgba(0,230,118,0.08);
+    --accent: #5c7cfa;
+    --accent-dim: rgba(92,124,250,0.12);
+    --grid: rgba(255,255,255,0.025);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 12px 12px;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 10%, rgba(92,124,250,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 50% at 80% 90%, rgba(0,230,118,0.04) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+ select {
+  background-color:#f0f8ff; 
+  color: #222;
+ }
+ 
+/*
+ select:focus {
+  background-color: #f0f8ff; 
+  color: #222;
+  outline: 2px solid #4a90e2;
+}
+*/
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 390px;
+  }
+
+  /* ── TICKER HEADER ─────────────────────────── */
+  .ticker-header {
+    margin-bottom: 4px;
+  }
+
+  .ticker-left {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 16px;
+  }
+
+  .ticker-symbol {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.4rem, 3.5vw, 2.2rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: #fff;
+  }
+
+  .ticker-price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .current-price {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.2rem, 3vw, 1.8rem);
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    transition: color 0.4s;
+  }
+
+  .price-change {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+  }
+
+  .change-val, .change-pct {
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: color 0.4s;
+  }
+
+  .gain .change-val, .gain .change-pct { color: var(--gain); }
+  .loss .change-val, .loss .change-pct { color: var(--loss); }
+
+  /* ── CHART ─────────────────────────────────── */
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 10px;
+    margin-bottom: 4px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .chart-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent calc(25% - 0.5px),
+      var(--grid) calc(25% - 0.5px),
+      var(--grid) 25%
+    );
+    pointer-events: none;
+  }
+
+  .chart-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .chart-range {
+    display: flex;
+    gap: 3px;
+  }
+
+  .range-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .range-btn.active,
+  .range-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-dim);
+  }
+
+  .chart-meta {
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  #mainChart {
+    width: 100%;
+    height: 200px;
+    display: block;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── STATS GRID ─────────────────────────────── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3px;
+    margin-bottom: 4px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 8px 10px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+
+  .stat-card:hover { border-color: rgba(255,255,255,0.12); }
+
+  .stat-label {
+    font-size: 0.62rem;
+    color: var(--muted);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .stat-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #fff;
+    transition: color 0.4s;
+  }
+
+  .stat-sub {
+    font-size: 0.64rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* ── MARKET OVERVIEW ───────────────────────── */
+  .section-label {
+    font-size: 0.62rem;
+    color: var(--muted);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .market-list {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .market-row {
+    display: grid;
+    grid-template-columns: 1fr 120px 100px;
+    align-items: flex-start;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 10px;
+    transition: border-color 0.3s;
+  }
+
+  .market-row:hover { border-color: rgba(255,255,255,0.1); }
+
+  .market-name-col .name {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .market-name-col .sub {
+    font-size: 0.62rem;
+    color: var(--muted);
+    margin-top: 2px;
+    letter-spacing: 0.08em;
+  }
+
+  .market-price-col {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #fff;
+    text-align: right;
+    transition: color 0.4s;
+  }
+
+  .market-change-col {
+    text-align: right;
+    font-size: 0.75rem;
+    font-weight: 500;
+    transition: color 0.4s;
+  }
+
+  .gain-text { color: var(--gain); }
+  .loss-text { color: var(--loss); }
+
+  /* ── SPARKLINE ─────────────────────────────── */
+  .mini-spark {
+    width: 60px;
+    height: 24px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+
+  /* ── FLASH ANIMATIONS ──────────────────────── */
+  @keyframes flashGain {
+    0%   { background: var(--gain-dim); }
+    100% { background: transparent; }
+  }
+
+  @keyframes flashLoss {
+    0%   { background: var(--loss-dim); }
+    100% { background: transparent; }
+  }
+
+  .flash-gain { animation: flashGain 0.6s ease-out forwards; }
+  .flash-loss { animation: flashLoss 0.6s ease-out forwards; }
+
+  @keyframes priceTick {
+    0%   { transform: translateY(-4px); opacity: 0.6; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+
+  .price-tick { animation: priceTick 0.3s ease-out; }
+
+  /* ── LIVE DOT ──────────────────────────────── */
+  .live-indicator {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 3px;
+    font-size: 0.62rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--gain);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,230,118,0.4); }
+    50% { opacity: 0.7; box-shadow: 0 0 0 4px rgba(0,230,118,0); }
+  }
+
+  /* ── RESPONSIVE ────────────────────────────── */
+  @media (max-width: 600px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .market-row { grid-template-columns: 1fr 90px 80px; padding: 12px 14px; }
+    .ticker-header { gap: 12px; }
+  }
