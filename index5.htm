@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <title></title>
+        <meta http-equiv="content-type" content="text/html;charset=utf-8" />	
+        <script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+        <!-- Bootstrap icons-->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="css/styles.css" rel="stylesheet" />
+        <script type="text/javascript">
+           let firstVisit = true ;     // original value:  true 
+           let refSec = 3000 ; // original value:  0
+        </script>
+    </head>
+    <body>
+    <table style="width:100%" border="0" cellpadding="0" cellspacing="0">
+      <thead>
+        <tr>
+          <th style="width:33%"><div>
+            <span id="wi-d"></span><span id="wi-c" class="wi-box"></span>
+            <span class="wi-box">Dowjon</span><span id="dowjon-p" class="wi-box"></span>
+            <span class="wi-box">Nasdaq</span><span id="nasdaq-p" class="wi-box"></span>
+          </div>
+            <div id="myProgress1"><div id="myBar1"></div></div></th>
+          <th style="width:33%">
+          <span><select id="s01">
+                <option value="-1">請選擇</option>
+                <option value="0">STOP</option>
+                <option value="1">3's</option>
+                <option value="2">5's</option>
+                <option value="3">10's</option>
+                <option value="4">20's</option>
+                <option value="5">30's</option>
+                <option value="6">1'm</option>
+                <option value="7">10'm</option>
+                <option value="8">15'm</option>
+                <option value="9">20'm</option>
+                <option value="10" selected>30'm</option>
+            </select></span>
+			<span><a href="index.htm" style="color:#fff">Home</a></span>
+            </th>
+          <th style="width:33%">
+          <select id="s02">
+                <option value="2449" selected>選其他</option>
+                <option value="2303">聯電</option>									   
+                <option value="2347">聯強</option>
+                <option value="1301">台塑</option>
+                <option value="1101">台泥</option>
+                <option value="2002">中鋼</option>
+                <option value="8150">南茂</option>
+                <option value="2603">長榮</option>
+                <option value="2609">陽明</option>
+                <option value="2454">聯發科</option>
+                <option value="3008">大立光</option>
+                <option value="2884">玉山金</option>
+                <option value="2886">兆豐金</option>
+                <option value="2891">中信金</option>
+            </select>
+          </th>                         		
+        </tr>
+      </thead>
+      <tr>
+      <td colspan="3" style="width:100%">
+          <div id="hiddenMsg1">
+          </div>
+          <div style="display:flex">	  
+          <div id="hiddenElement1">
+          </div>
+          <div id="hiddenElement2">
+
+          </div>
+        </div>
+      </td>  
+      </tr>
+  <tr>
+    <td>
+      <div id="span11"></div>
+      <div id="span12"></div>
+      <div id="span13"></div>
+      <div id="span14"></div>
+      <div id="span15"></div>
+    </td>
+    <td>
+      <div id="span21"></div>
+      <div id="span22"></div>
+      <div id="span23"></div>
+      <div id="span24"></div>
+      <div id="span25"></div>
+    </td>   
+    <td>
+      <div id="span31"></div>
+      <div id="span32"></div>
+      <div id="span33"></div>
+      <div id="span34"></div>
+      <div id="span35"></div>
+    </td> 
+  </tr>
+  <tr>
+    <td>
+      <div id="span41"></div>
+      <div id="span42"></div>
+      <div id="span43"></div>
+      <div id="span44"></div>
+      <div id="span45"></div>
+    </td>
+    <td>
+      <div id="span51"></div>
+      <div id="span52"></div>
+      <div id="span53"></div>
+      <div id="span54"></div>
+      <div id="span55"></div>
+    </td>   
+    <td>
+      <div id="op11">&nbsp;</div>
+      <div id="op12">&nbsp;</div>
+      <div id="op13">&nbsp;</div>
+      <div id="op14">&nbsp;</div>
+      <div id="op15">&nbsp;</div>	
+    </td>
+  </tr>
+  // ======
+<!-- * ********************** 
+  <tr>
+
+
+    <td>
+	  <div id="tsmc1"></div>
+      <div id="tsmc2"></div>
+      <div id="tsmc3"></div>
+      <div id="tsmc4"></div>
+      <div id="tsmc5"></div>
+	</td>
+    <td>
+	  <div id="op11">&nbsp;</div>
+      <div id="op12">&nbsp;</div>
+      <div id="op13">&nbsp;</div>
+      <div id="op14">&nbsp;</div>
+      <div id="op15">&nbsp;</div>	
+	</td>   
+  </tr>
+  / ************************************* 
+-->
+  </tbody>
+</table>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Core theme JS-->
+  <script src="js/scripts5.js"></script>
+  <!-- script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script -->
+ </body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+<title>台股分時走勢提示鈴系統</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="css/testalarm.css" rel="stylesheet" />
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <div class="ticker-block">
+	  <span><a href="hotstock.htm"><img src="img/home.png" /></a></span>
+      <span class="ticker-symbol" id="sym">—</span>
+    </div>
+    <div class="header-actions">
+      <button id="alertToggleBtn" class="hbtn" aria-expanded="false" aria-controls="alertPanel">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.6" fill="currentColor"/></svg>
+        Price Alert
+      </button>
+      <button id="chimeBtn" class="hbtn active-on">Chime: On</button>
+    </div>
+  </header>
+
+  <section id="alertPanel" class="alert-panel" hidden>
+    <div class="alert-panel-title">價格到達警示</div>
+    <div class="alert-panel-inner">
+      <div class="field">
+        <label for="alertDirection">做多/做空</label>
+        <select id="alertDirection">
+          <option value="rise">價格漲至目標價</option>
+          <option value="fall">價格跌至目標價</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="alertTarget">目標價 ($)</label>
+        <input type="number" id="alertTarget" step="0.01" min="0">
+      </div>
+      <button id="alertApply" class="apply-btn">Apply</button>
+      <span id="alertStatus" class="alert-status">No alert set</span>
+    </div>
+  </section>
+
+  <section class="price-hero">
+    <div class="price-main">
+      <span id="priceValue" class="price-value">0.00</span>
+      <span id="priceChange" class="price-change">+0.00 (0.00%)</span>
+    </div>
+    <div class="price-meta">
+      <span>High <b id="dayHigh">–</b></span>
+      <span>Low <b id="dayLow">–</b></span>
+      <span>Open <b id="dayOpen">–</b></span>
+    </div>
+  </section>
+
+  <section class="chart-section">
+    <canvas id="priceChart"></canvas>
+  </section>
+
+  <section class="gauge-section">
+    <div class="gauge-label">
+      到達目標價進度‧‧‧‧‧‧<span class="tval" id="gaugeTargetLabel">no target set</span>
+    </div>
+    <div class="gauge-track">
+      <div class="gauge-fill" id="gaugeFill"></div>
+      <div class="gauge-marker" id="gaugeMarker"></div>
+    </div>
+    <div class="gauge-scale">
+      <span id="gaugeStart">–</span>
+      <span id="gaugeEnd">–</span>
+    </div>
+  </section>
+
+  <section class="market-overview">
+    <h2>Market overview</h2>
+    <div class="index-grid" id="indexGrid"></div>
+  </section>
+</div>
+<script src="js/testalarm.js"></script>
+</body>
+</html>

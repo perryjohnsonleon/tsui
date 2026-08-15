@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <!-- script type="text/javascript" src="js/jquery-3.2.1.min.js"></script -->
+  <style>
+  .btn2 {
+  padding:10px,30px;
+  background-color:#f3b3b3;
+  }
+  </style>
+  <script src="js/chart.js"></script>
+  <script>
+ async function getPost(stockId) {
+  try {
+   let itemPrice_matrix="" ;
+   let oldCanvas = document.getElementById("myChart");
+   if (oldCanvas) {
+	  oldCanvas.outerHTML = "<canvas id='myChart' width='750' height='400'></canvas>" ;
+  }
+    let fetchUrl_str1="https://ws.api.cnyes.com/ws/api/v1/charting/history?resolution=1&symbol=TWS:" , fetchUrl_str2=":STOCK&quote=1"   ;
+    let fetchUrl_str=fetchUrl_str1 + stockId + fetchUrl_str2 ;
+	console.log(fetchUrl_str);
+    const response = await fetch(fetchUrl_str);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const post = await response.json(); // Convert response to JS object
+    return post;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    return null;
+  }
+}
+
+async function displayPost(stockId) {
+  const post = await getPost(stockId);
+  let itemPrice_name = "" , itemPrice_weight= 0 , itemPrice_height = 0 ;
+  let xValues_str="0";
+  if (post) {
+    const itemPrice_arry = post.data.c;
+	const quote_obj = post.data.quote ;
+	for ( var n in quote_obj) {
+	   if ( n == "200009" ) itemPrice_name= quote_obj[n] ;
+	   if ( n == "6" ) itemPrice_weight= quote_obj[n] ;
+	   if ( n == "11" ) itemPrice_height= quote_obj[n] ;
+	}
+	itemPrice_matrix =[...itemPrice_arry].reverse() ;	
+	const xValues_matrix= Array.from({ length: itemPrice_matrix.length }, (_, index) => index + 1);
+	const xValues = xValues_matrix;
+    let original = itemPrice_matrix ;
+	let yValues = original.map(n => n );
+    let points = yValues.map((y, i) => ({ x: xValues[i], y }));
+	let itemPrice_title = itemPrice_name + "(" + itemPrice_weight + ")" + "[" + itemPrice_height + "]" ; 
+    var graph=new Chart(document.getElementById('myChart'), {
+      type: 'line',
+      data: {
+        datasets: [{
+          label: itemPrice_title ,
+          data: points,
+          borderColor: 'blue',
+          cubicInterpolationMode: 'monotone',
+          tension: 0.4,
+          backgroundColor: 'rgba(0,0,255,0.2)',
+        }]
+      },
+      options: {
+        scales: {
+          x: {
+            type: 'linear', // 指定為數值型 x 軸
+            title: { display: true, text: 'X 軸（數值）' },
+          },
+          y: {
+            beginAtZero: false,
+            title: { display: true, text: 'Y 軸（數值）' },
+          }
+        }
+      }
+    });
+   }
+  }   
+  </script>
+
+</head>
+<body>
+<div style="display:flex;">
+<div><canvas id="myChart" width="750" height="400"></canvas></div>
+<div>
+<div><button onclick="displayPost(2330);" class="btn2">台積電</button></div>
+<div><button onclick="displayPost(1504);" class="btn2">東元</button></div>
+<div><button onclick="displayPost(2371);" class="btn2">大同</button></div>
+<div><button onclick="displayPost(2324);" class="btn2">仁寶</button></div>
+<div><button onclick="displayPost(2317);" class="btn2">鴻海</button></div>
+<div><button onclick="displayPost(2002);" class="btn2">中鋼</button></div>
+<div><button onclick="displayPost(2027);" class="btn2">大成鋼</button></div>
+<div><button onclick="displayPost(1402);" class="btn2">遠東新</button></div>
+<div><button onclick="displayPost(1301);" class="btn2">台塑</button></div>
+<div><button onclick="displayPost(1102);" class="btn2">亞泥</button></div>
+<div><button onclick="displayPost(1101);" class="btn2">台泥</button></div>
+<div><button onclick="displayPost(1210);" class="btn2">大成</button></div>
+<div><button onclick="displayPost(2347);" class="btn2">聯強</button></div>
+<div><button onclick="displayPost(8150);" class="btn2">南茂</button></div>
+<div><button onclick="displayPost(5410);" class="btn2">國眾</button></div>
+<div><button onclick="displayPost(4938);" class="btn2">和碩</button></div>
+<div><button onclick="displayPost(3706);" class="btn2">神達</button></div>
+<div><button onclick="displayPost(2449);" class="btn2">京元電子</button></div>
+</div>
+</div>
+</body>
+</html>

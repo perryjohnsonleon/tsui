@@ -1,0 +1,21 @@
+https://ws.api.cnyes.com/ws/api/v3/universal/quote?type=IDXMAJOR&column=B&page=1&limit=10 (亞洲股市)
+https://ws.api.cnyes.com/ws/api/v3/universal/quote?type=IDXMAJOR&column=B&page=2&limit=10 (歐洲股市)
+https://invest.cnyes.com/indices/major (國際主要股市)
+
+
+index_z.htm
+道瓊指
+NASDQ
+SP500
+日經指
+恆生指
+上證指
+
+
+index_y.htm
+NY石油
+黃金現
+美元指
+CA150
+TW30
+ESG30

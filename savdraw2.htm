@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SVG 向量繪圖工具</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+      background: #f4f4f4;
+      border-bottom: 1px solid #ccc;
+    }
+    .toolbar label, .toolbar button {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    svg {
+      border: 1px solid #000;
+      cursor: crosshair;
+    }
+  </style>
+</head>
+<body>
+  <!-- 工具欄 -->
+  <div class="toolbar">
+    <label>
+      <span>顏色:</span>
+      <input type="color" id="colorPicker" value="#000000">
+    </label>
+    <label>
+      <span>粗細:</span>
+      <input type="range" id="thicknessPicker" min="1" max="10" value="2">
+    </label>
+    <button id="clearButton">清除畫布</button>
+  </div>
+
+  <!-- SVG 繪圖區域 -->
+  <svg id="drawingArea" width="800" height="600"></svg>
+
+  <script>
+    const svg = document.getElementById('drawingArea');
+    const colorPicker = document.getElementById('colorPicker');
+    const thicknessPicker = document.getElementById('thicknessPicker');
+    const clearButton = document.getElementById('clearButton');
+
+    let isDrawing = false; // 是否正在繪圖
+    let path; // 當前的路徑
+    let d = ''; // 路徑資料
+
+    // 開始繪圖
+    svg.addEventListener('mousedown', (e) => {
+      isDrawing = true;
+      const { offsetX, offsetY } = e;
+      d = `M${offsetX},${offsetY}`; // 初始化路徑起點
+      path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', d);
+      path.setAttribute('stroke', colorPicker.value); // 設置畫筆顏色
+      path.setAttribute('stroke-width', thicknessPicker.value); // 設置畫筆粗細
+      path.setAttribute('fill', 'none');
+      svg.appendChild(path);
+    });
+
+    // 繪製過程
+    svg.addEventListener('mousemove', (e) => {
+      if (!isDrawing) return;
+      const { offsetX, offsetY } = e;
+      d += ` L${offsetX},${offsetY}`; // 新增路徑點
+      path.setAttribute('d', d);
+    });
+
+    // 結束繪圖
+    svg.addEventListener('mouseup', () => {
+      isDrawing = false;
+    });
+
+    svg.addEventListener('mouseleave', () => {
+      isDrawing = false;
+    });
+
+    // 清除畫布
+    clearButton.addEventListener('click', () => {
+      svg.innerHTML = ''; // 清空所有 SVG 內容
+    });
+  </script>
+</body>
+</html>

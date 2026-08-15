@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta http-equiv="content-type" content="text/html;charset=utf-8" />	
+        <title>個股vs.大盤分時走勢圖</title>
+		<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+        <link href="css/hotstock.css" rel="stylesheet" />
+		<!-- Chart.js -->
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+		<!-- Annotation Plugin -->
+		<script src="js/chartjs-plugin-annotation.js"></script>	
+    </head>
+    <body>
+    <div class="head-items">
+                <div><a href="#" onclick="showRealprice(0); return false;"><img src="img/market.png" /></a>&nbsp;
+                </div>
+				<div><a href="alarm.htm"><img src="img/clock.png" /></a>&nbsp;</div>
+                <div class="wi-container">
+                    <div id="wi-c" class="wi-box"></div>
+                    <div id="wi-d" class="wi-box"></div>
+                    <div id="wi-h" class="wi-box"></div>
+                    <div id="wi-l" class="wi-box"></div> 
+                </div> 
+                <div class="s-item">
+                    <select id="s01">
+						<option value="0" selected>AI群</option>
+						<option value="1">優配</option>
+						<option value="2">金融</option>
+						<option value="3">航運</option>
+						<option value="4">塑膠</option>
+						<option value="5">鋼鐵</option>
+						<option value="6">營建</option>
+						<option value="7">紡織</option>
+						<option value="8">食品</option>
+                        <option value="9">造紙</option>
+                        <option value="10">資服</option>
+						<option value="Z">[國際]</option>
+					</select>
+                </div>
+    </div>  
+
+    <div class="view">
+		<div class="view-items">  
+			<div id="hiddenMsg1">
+			  <div style="display:flex">			  
+				  <div id="hiddenElement1">
+				  </div>
+				  <div id="hiddenElement2">
+				  </div>
+					  <div id="collapseBtn"><img src="collapse.png" style="display:none;cursor:pointer;" onclick="collapseElement()" />
+				  </div>
+			  </div>
+			</div>
+			<div id="hiddenMsg2" style="display:block">
+					<div><canvas id="realtimeChart" width="320" height="200" style="display:none;"></canvas></div>
+					<div id="collapseBtns" style="display:flex">
+					<div id="collapseBtn2" style="display:none;justify-content:center;"><img src='collapse.png' style='cursor:pointer;' onclick='collapseElement2()' /></div>
+					<div id="oneBtn" style="display:none;justify-content:center;"><img src='onebtn.png' style='cursor:pointer;' /></div>
+					<div id="twinBtn" style="display:none;justify-content:center;"><img src='twinbtn.png' style='cursor:pointer;' /></div>			
+					<div id="stopBtn" style="display:none;justify-content:center;"><img src='stopbtn.png' style='cursor:pointer;' onclick='collapseElement3()' /></div>
+					<div id="goBtn" style="display:none;justify-content:center;"><img src='gobtn.png' style='cursor:pointer;' onclick='collapseElement3()' /></div>
+					</div>
+			</div>
+			<div id="marketList" style="display:block;"> 
+			</div>
+		</div>
+    </div>
+	<script src="js/hotstock.js"></script>	
+  </body>
+</html>

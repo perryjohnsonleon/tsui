@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta http-equiv="content-type" content="text/html;charset=utf-8" />	
+        <title>台指即美指</title>
+		<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+        <link href="css/styles_z.css" rel="stylesheet" />
+        <script type="text/javascript">
+           let firstVisit = true ;     // original value:  true 
+           let refSec = 3000 ; // original value:  0
+        </script>
+    </head>
+    <body>
+    <div class="head-items">
+                <div class="p-item">
+                    <div id="myProgress1"><div id="myBar1"></div></div>
+                </div>    
+                <div class="s-item">
+                    <select id="s01">
+						<option value="-1">請選擇</option>
+						<option value="0">STOP</option>
+						<option value="A">當沖股</option>
+						<option value="B">製造業</option>
+						<option value="C">電子１</option>
+						<option value="D">電子２</option>
+						<option value="E">金融股</option>
+						<option value="F">航運股</option>
+						<option value="Z" selected>美股</option>
+						<option value="1">3's</option>
+						<option value="2">5's</option>
+						<option value="3">10's</option>
+						<option value="5">30's</option>
+						<option value="6">1'm</option>
+						<option value="7">10'm</option>
+						<option value="10">30'm</option>
+					</select>
+                </div>
+    </div>  
+
+    <div class="view">
+        <div class="view-items">
+          <div class="data-items"> 
+              <div class="items">    
+                  <div class="wi-head">台股指數：<span id="wi-d"></span></div>
+                  <div class="wi" id="wi-c"></div>
+                  <div class="wi" id="wi-o"></div>
+                  <div class="wi" id="wi-h"></div>
+                  <div class="wi" id="wi-l"></div>
+              </div>
+              <div class="items">    
+                  <div class="wi-head">美股指數</div>
+                  <div class="wi-head">道瓊指數：<span id="dowjon-p"></span></div>
+                  <div class="wi-head">那斯達克：<span id="nasdaq-p"></span></div>
+				  <div class="wi">&nbsp;</div>
+                  <div class="wi">&nbsp;</div>
+              </div>			  
+              <div class="items">
+                  <div class="item-head" id="item-11"></div>
+                  <div class="item" id="item-12"></div>
+                  <div class="item" id="item-13"></div>
+                  <div class="item" id="item-14"></div>
+                  <div class="item" id="item-15"></div>
+              </div> 
+         </div>  
+      </div>
+    </div>
+	<script src="js/scripts_zz.js"></script>
+  </body>
+</html>

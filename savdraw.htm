@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SVG 滑鼠繪圖</title>
+  <style>
+    svg {
+      border: 1px solid #000;
+    }
+  </style>
+</head>
+<body>
+  <svg id="drawingArea" width="600" height="400"></svg>
+  <script>
+    const svg = document.getElementById('drawingArea');
+
+    let isDrawing = false; // 判斷是否處於繪圖模式
+    let path; // 當前繪製的線條
+    let d = ''; // 路徑資料
+
+    // 開始繪圖
+    svg.addEventListener('mousedown', (e) => {
+      isDrawing = true;
+      const { offsetX, offsetY } = e;
+      d = `M${offsetX},${offsetY}`; // 初始化路徑起點
+      path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', d);
+      path.setAttribute('stroke', 'red');
+      path.setAttribute('stroke-width', '10');
+      path.setAttribute('fill', 'none');
+      svg.appendChild(path);
+    });
+
+    // 繪製過程
+    svg.addEventListener('mousemove', (e) => {
+      if (!isDrawing) return;
+      const { offsetX, offsetY } = e;
+      d += ` L${offsetX},${offsetY}`; // 新增到路徑的線段
+      path.setAttribute('d', d);
+    });
+
+    // 結束繪圖
+    svg.addEventListener('mouseup', () => {
+      isDrawing = false;
+    });
+
+    svg.addEventListener('mouseleave', () => {
+      isDrawing = false;
+    });
+  </script>
+</body>
+</html>

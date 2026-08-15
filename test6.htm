@@ -1,0 +1,16 @@
+        let fetchUrl_str="https://ws.api.cnyes.com/ws/api/v1/charting/history?resolution=1&symbol=TWS:1102:STOCK&quote=1"
+         //  fetchUrl_str=fetchUrl_str1 + stockId_list[0] + fetchUrl_str2 ;	
+          $.getJSON(fetchUrl_str,function(data){
+            $.each(data,function(key1,item1){
+              if (key1 === 'data') {
+              var itemData = item1 ;          
+              $.each(itemData,function(key2,item2){
+                if (key2  === 'c' ) {
+                  console.log(999);
+                  itemPrice_arry = item2;
+                  itemPrice_matrix = [...itemPrice_arry].reverse() ;	      		
+                }
+                });       
+            }
+            });
+          })

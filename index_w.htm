@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta http-equiv="content-type" content="text/html;charset=utf-8" />	
+        <title>績優配息股</title>
+		<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+        <link href="css/styles_z.css" rel="stylesheet" />
+        <script type="text/javascript">
+           let firstVisit = true ;     // original value:  true 
+           let refSec = 3000 ; // original value:  0
+        </script>
+    </head>
+    <body>
+    <div class="head-items">
+                <div class="p-item">
+                    <div id="myProgress1"><div id="myBar1"></div></div>
+                </div>    
+                <div class="s-item">
+                    <select id="s01">
+						<option value="-1">請選擇</option>
+						<option value="0">STOP</option>
+						<option value="A">當沖股</option>
+						<option value="B">製造業</option>
+						<option value="C">電子１</option>
+						<option value="D">電子２</option>
+						<option value="E">金融股</option>
+						<option value="F">航運股</option>
+						<option value="Z" selected>美股</option>
+						<option value="1">3's</option>
+						<option value="2">5's</option>
+						<option value="3">10's</option>
+						<option value="5">30's</option>
+						<option value="6">1'm</option>
+						<option value="7">10'm</option>
+						<option value="10">30'm</option>
+					</select>
+                </div>
+    </div>  
+
+    <div class="view">
+        <div class="view-items">
+          <div class="data-items"> 
+              <div class="items">
+                  <div class="item-head" id="item-11"></div>
+                  <div class="item" id="item-21"></div>
+                  <div class="item" id="item-31"></div>
+                  <div class="item" id="item-41"></div>
+                  <div class="item" id="item-51"></div>
+              </div>
+                  <div class="items">
+                  <div class="item-head" id="item-12"></div>
+                  <div class="item" id="item-22"></div>
+                  <div class="item" id="item-32"></div>
+                  <div class="item" id="item-42"></div>
+                  <div class="item" id="item-52"></div>
+              </div>  			  
+              <div class="items">
+                  <div class="item-head" id="item-13"></div>
+                  <div class="item" id="item-23"></div>
+                  <div class="item" id="item-33"></div>
+                  <div class="item" id="item-43"></div>
+                  <div class="item" id="item-53"></div>
+              </div>
+                  <div class="items">
+                  <div class="item-head" id="item-14"></div>
+                  <div class="item" id="item-24"></div>
+                  <div class="item" id="item-34"></div>
+                  <div class="item" id="item-44"></div>
+                  <div class="item" id="item-54"></div>
+              </div>  
+         </div>
+          <div class="data-items"> 
+              <div class="items">
+                  <div class="item-head" id="item-15"></div>
+                  <div class="item" id="item-25"></div>
+                  <div class="item" id="item-35"></div>
+                  <div class="item" id="item-45"></div>
+                  <div class="item" id="item-55"></div>
+              </div>
+                  <div class="items">
+                  <div class="item-head" id="item-16"></div>
+                  <div class="item" id="item-26"></div>
+                  <div class="item" id="item-36"></div>
+                  <div class="item" id="item-46"></div>
+                  <div class="item" id="item-56"></div>
+              </div>  			  
+              <div class="items">
+                  <div class="item-head" id="item-17"></div>
+                  <div class="item" id="item-27"></div>
+                  <div class="item" id="item-37"></div>
+                  <div class="item" id="item-47"></div>
+                  <div class="item" id="item-57"></div>
+              </div>
+                  <div class="items">
+                  <div class="item-head" id="item-18"></div>
+                  <div class="item" id="item-28"></div>
+                  <div class="item" id="item-38"></div>
+                  <div class="item" id="item-48"></div>
+                  <div class="item" id="item-58"></div>
+              </div>  
+         </div>
+          <div class="data-items"> 
+              <div class="items">
+                  <div class="item-head" id="item-19"></div>
+                  <div class="item" id="item-29"></div>
+                  <div class="item" id="item-39"></div>
+                  <div class="item" id="item-49"></div>
+                  <div class="item" id="item-59"></div>
+              </div>
+                  <div class="items">
+                  <div class="item-head" id="item-110"></div>
+                  <div class="item" id="item-210"></div>
+                  <div class="item" id="item-310"></div>
+                  <div class="item" id="item-410"></div>
+                  <div class="item" id="item-510"></div>
+              </div>  			  
+              <div class="items">
+                  <div class="item-head" id="item-111"></div>
+                  <div class="item" id="item-211"></div>
+                  <div class="item" id="item-311"></div>
+                  <div class="item" id="item-411"></div>
+                  <div class="item" id="item-511"></div>
+              </div>
+                  <div class="items">
+                  <div class="item-head" id="item-112"></div>
+                  <div class="item" id="item-212"></div>
+                  <div class="item" id="item-312"></div>
+                  <div class="item" id="item-412"></div>
+                  <div class="item" id="item-512"></div>
+              </div>  
+         </div>
+         <div class="data-items"> 
+              <div class="items">
+                  <div class="item-head" id="item-113"></div>
+                  <div class="item" id="item-213"></div>
+                  <div class="item" id="item-313"></div>
+                  <div class="item" id="item-413"></div>
+                  <div class="item" id="item-513"></div>
+              </div>
+                  <div class="items">
+                  <div class="item-head" id="item-114"></div>
+                  <div class="item" id="item-214"></div>
+                  <div class="item" id="item-314"></div>
+                  <div class="item" id="item-414"></div>
+                  <div class="item" id="item-514"></div>
+              </div>  			  
+              <div class="items">
+                  <div class="item-head" id="item-115"></div>
+                  <div class="item" id="item-215"></div>
+                  <div class="item" id="item-315"></div>
+                  <div class="item" id="item-415"></div>
+                  <div class="item" id="item-515"></div>
+              </div>
+                  <div class="items">
+                  <div class="item-head" id="item-116"></div>
+                  <div class="item" id="item-216"></div>
+                  <div class="item" id="item-316"></div>
+                  <div class="item" id="item-416"></div>
+                  <div class="item" id="item-516"></div>
+              </div>  
+         </div>			 
+      </div>
+    </div>
+	<script src="js/scripts_w.js"></script>
+  </body>
+</html>

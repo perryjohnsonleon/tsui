@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>台股損益試算單</title>
+<link href="css/cal.css" rel="stylesheet" />
+</head>
+<body>
+<div class="wrap">
+  <div class="panel">
+    <span>交易方向</span>
+    <span style="text-align:right;"><a href="hotstock.htm"><img src="img/home.png" /></a></span>
+    <div class="toggleRow" role="group" aria-label="交易方向">
+      <button type="button" id="dirLong" class="active">做多 LONG（先買後賣）</button>
+      <button type="button" id="dirShort">做空 SHORT（先賣後買）</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <p class="panel-title">交易單位</p>
+    <div class="toggleRow" role="group" aria-label="數量單位">
+      <button type="button" id="unitLot" class="active">整股（1張＝1000股）</button>
+      <button type="button" id="unitShare">股數（自訂）</button>
+    </div>
+    <div class="grid" style="margin-top:16px;">
+      <div class="field" id="qtyField">
+        <label for="qty">張數 <span class="hint">LOTS</span></label>
+        <div class="inputRow">
+          <span class="prefix">×</span>
+          <input type="number" id="qty" value="1" min="0" step="1">
+        </div>
+      </div>
+      <div class="field" id="anchorField">
+        <label for="buyPrice">買進價 <span class="hint">BUY</span></label>
+        <div class="inputRow">
+          <span class="prefix">$</span>
+          <input type="number" id="buyPrice" value="50" min="0" step="0.01">
+        </div>
+      </div>
+      <div class="field">
+        <label for="priceStep">價格間距 <span class="hint">STEP</span></label>
+        <div class="inputRow">
+          <span class="prefix">$</span>
+          <input type="number" id="priceStep" value="0.05" min="0.01" step="0.01">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <p class="panel-title">費率設定</p>
+    <div class="grid three">
+      <div class="field hasSuffix">
+        <label for="feeRate">手續費率 <span class="hint">FEE</span></label>
+        <div class="inputRow">
+          <input type="number" id="feeRate" value="0.1425" min="0" step="0.0001">
+          <span class="suffix">%</span>
+        </div>
+      </div>
+      <div class="field hasSuffix">
+        <label for="feeDiscount">手續費折數 <span class="hint">DISCOUNT</span></label>
+        <div class="inputRow">
+          <input type="number" id="feeDiscount" value="2.5" min="0" max="10" step="0.1">
+          <span class="suffix">折</span>
+        </div>
+      </div>
+      <div class="field">
+        <label for="feeMin">單筆低消 <span class="hint">MIN FEE</span></label>
+        <div class="inputRow">
+          <span class="prefix">$</span>
+          <input type="number" id="feeMin" value="20" min="0" step="1">
+        </div>
+      </div>
+    </div>
+    <div class="grid" style="margin-top:16px;">
+      <div class="field hasSuffix">
+        <label for="taxRate">證交稅率 <span class="hint">TAX（賣出課徵）</span></label>
+        <div class="inputRow">
+          <input type="number" id="taxRate" value="0.3" min="0" step="0.01">
+          <span class="suffix">%</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>常見稅率</label>
+        <div class="toggleRow">
+          <button type="button" class="taxPreset active" data-rate="0.3">股票 0.3%</button>
+          <button type="button" class="taxPreset" data-rate="0.15">現股當沖 0.15%</button>
+          <button type="button" class="taxPreset" data-rate="0.1">ETF 0.1%</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tablePanel">
+    <h2>損益比較表 // P&amp;L Comparison</h2>
+    <p class="subhint" id="tableSubhint">以買入價為基準，依「價格間距」上下展開各賣出價的損益試算。</p>
+
+    <button type="button" class="moreBtn top" id="moreTop">
+      <span>&#9650;</span> 顯示更多
+    </button>
+
+    <div class="scrollWrap">
+      <table class="cmp">
+        <thead>
+          <tr>
+            <th>買入價</th>
+            <th>賣出價</th>
+            <th>證交稅</th>
+            <th>手續費</th>
+            <th>獲利</th>
+            <th>報酬率</th>
+          </tr>
+        </thead>
+        <tbody id="cmpBody"></tbody>
+      </table>
+    </div>
+
+    <button type="button" class="moreBtn bottom" id="moreBottom">
+      <span>&#9660;</span> 顯示更多
+    </button>
+
+  </div>
+  <div class="legend">
+    <span class="r">獲利</span>
+    <span class="g">虧損</span>
+  </div>
+</div>
+<script src="js/cal.js"></script>	
+</body>
+</html>

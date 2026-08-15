@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NXC · Live Quote</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0d13;
+    --surface:#11151e;
+    --surface-2:#161b26;
+    --border:#232a3a;
+    --text:#e9ecf1;
+    --text-muted:#7c8699;
+    --text-dim:#4d5566;
+    --accent:#c99a3e;
+    --accent-dim:#8a6d2e;
+    --up:#e5484d;      /* gains = red (TWSE convention) */
+    --down:#30a46c;    /* losses = green (TWSE convention) */
+    --up-glow: rgba(229,72,77,0.18);
+    --down-glow: rgba(48,167,108,0.18);
+    --radius:10px;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+    --sans: 'IBM Plex Sans', -apple-system, sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(201,154,62,0.06), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    min-height:100vh;
+    padding:20px;
+  }
+
+  .wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:16px;}
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    display:flex;align-items:center;gap:14px;
+    padding:10px 14px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+  }
+  .home-btn{
+    display:flex;align-items:center;justify-content:center;
+    width:48px;height:48px;flex:none;
+    border-radius:8px;
+    border:1px solid var(--border);
+    color:var(--text-muted);
+    text-decoration:none;
+    transition:border-color .15s ease, color .15s ease, background .15s ease;
+  }
+  .home-btn:hover{color:var(--accent);border-color:var(--accent-dim);background:rgba(201,154,62,0.06);}
+  .home-btn svg{width:26px;height:26px;}
+
+  .ticker-block{display:flex;align-items:baseline;gap:10px;flex:1;min-width:0;}
+  .ticker-symbol{
+    font-family:var(--mono);font-weight:800;font-size:1.05rem;
+    letter-spacing:0.04em;color:var(--text);
+  }
+  .ticker-name{
+    color:var(--text-muted);font-size:0.85rem;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+
+  .header-actions{display:flex;gap:8px;flex:none;}
+  .hbtn{
+    font-family:var(--sans);font-size:0.8rem;font-weight:600;
+    padding:8px 12px;border-radius:8px;border:1px solid var(--border);
+    background:var(--surface-2);color:var(--text);
+    cursor:pointer;display:flex;align-items:center;gap:6px;
+    transition:border-color .15s ease, background .15s ease;
+    white-space:nowrap;
+  }
+  .hbtn:hover{border-color:var(--accent-dim);}
+  .hbtn.active-on{color:var(--down);border-color:rgba(48,167,108,0.35);background:var(--down-glow);}
+  .hbtn.active-off{color:var(--text-dim);}
+  .hbtn[aria-expanded="true"]{border-color:var(--accent);color:var(--accent);}
+
+  /* ---------- Alert panel (explicit, always-visible toggle target) ---------- */
+  .alert-panel{
+    background:var(--surface);border:1px solid var(--accent-dim);border-radius:var(--radius);
+    padding:14px 16px;
+    animation:reveal .18s ease;
+  }
+  @keyframes reveal{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
+  .alert-panel-title{font-size:0.78rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);font-weight:700;margin-bottom:10px;}
+  .alert-panel-inner{display:flex;flex-wrap:wrap;align-items:end;gap:14px;}
+  .field{display:flex;flex-direction:column;gap:5px;}
+  .field label{font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;}
+  .field select, .field input{
+    font-family:var(--mono);font-size:0.9rem;color:var(--text);
+    background:var(--surface-2);border:1px solid var(--border);border-radius:7px;
+    padding:8px 10px;min-width:130px;
+    font-weight:600;
+    transition:color .15s ease;
+  }
+  .field select:focus, .field input:focus{outline:2px solid var(--accent-dim);outline-offset:1px;}
+  .field select.dir-rise{color:var(--up);}
+  .field select.dir-fall{color:var(--down);}
+  .field select option[value="rise"]{color:var(--up);background:var(--surface-2);}
+  .field select option[value="fall"]{color:var(--down);background:var(--surface-2);}
+  .apply-btn{
+    font-family:var(--sans);font-weight:700;font-size:0.85rem;
+    background:var(--accent);color:#1a1300;border:none;border-radius:7px;
+    padding:9px 16px;cursor:pointer;transition:filter .15s ease;
+  }
+  .apply-btn:hover{filter:brightness(1.08);}
+  .alert-status{font-size:0.8rem;color:var(--text-muted);font-family:var(--mono);}
+  .alert-status.hit{color:var(--accent);}
+
+  /* ---------- Price hero ---------- */
+  .price-hero{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:22px 20px;
+    display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px;
+  }
+  .price-main{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;}
+  .price-value{
+    font-family:var(--mono);font-weight:700;font-size:clamp(2.4rem,7vw,3.4rem);
+    color:var(--text);transition:color .4s ease;
+    font-variant-numeric:tabular-nums;
+  }
+  .price-value.up{color:var(--up);}
+  .price-value.down{color:var(--down);}
+  .price-change{
+    font-family:var(--mono);font-weight:600;font-size:1.05rem;
+    padding:4px 10px;border-radius:6px;
+    transition:background .4s ease, color .4s ease;
+    color:var(--text-muted);
+  }
+  .price-change.up{color:var(--up);background:var(--up-glow);}
+  .price-change.down{color:var(--down);background:var(--down-glow);}
+
+  .price-flash{animation:flashpulse .5s ease;}
+  @keyframes flashpulse{
+    0%{filter:brightness(1.7);}
+    100%{filter:brightness(1);}
+  }
+
+  .price-meta{display:flex;gap:18px;font-family:var(--mono);font-size:0.82rem;color:var(--text-muted);}
+  .price-meta b{color:var(--text);font-weight:600;}
+
+  /* ---------- Chart ---------- */
+  .chart-section{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:14px 14px 6px;
+  }
+  #priceChart{width:100%;height:260px;display:block;}
+
+  /* ---------- Gauge (progress to target) — sits below the canvas ---------- */
+  .gauge-section{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:16px 18px 18px;
+  }
+  .gauge-label{
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;
+    margin-bottom:10px;font-weight:600;
+  }
+  .gauge-label span.tval{color:var(--accent);font-family:var(--mono);text-transform:none;letter-spacing:0;}
+  .gauge-track{
+    position:relative;height:12px;border-radius:6px;
+    background:repeating-linear-gradient(90deg,var(--surface-2) 0 8px, var(--border) 8px 9px);
+    overflow:visible;
+  }
+  .gauge-fill{
+    position:absolute;top:0;left:0;height:100%;border-radius:6px;
+    width:0%;
+    background:linear-gradient(90deg, var(--accent-dim), var(--accent));
+    transition:width .6s cubic-bezier(.2,.8,.2,1), background .3s ease;
+  }
+  .gauge-fill.hit{background:linear-gradient(90deg, var(--down), var(--up));}
+  .gauge-marker{
+    position:absolute;top:50%;left:0%;width:2px;height:22px;
+    background:var(--text);transform:translate(-1px,-50%);
+    transition:left .6s cubic-bezier(.2,.8,.2,1);
+    box-shadow:0 0 6px rgba(233,236,241,0.6);
+  }
+  .gauge-marker::after{
+    content:'';position:absolute;top:-5px;left:50%;transform:translateX(-50%);
+    border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:5px solid var(--text);
+  }
+  .gauge-scale{display:flex;justify-content:space-between;margin-top:8px;font-family:var(--mono);font-size:0.75rem;color:var(--text-dim);}
+
+  /* ---------- Market overview ---------- */
+  .market-overview{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:16px 18px 18px;
+  }
+  .market-overview h2{
+    margin:0 0 12px;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.08em;
+    color:var(--text-muted);font-weight:700;
+  }
+  .index-grid{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
+  }
+  .index-card{
+    background:var(--surface-2);border:1px solid var(--border);border-radius:8px;
+    padding:11px 12px;display:flex;flex-direction:column;gap:4px;
+  }
+  .index-name{font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;}
+  .index-value{font-family:var(--mono);font-weight:700;font-size:1.02rem;color:var(--text);font-variant-numeric:tabular-nums;}
+  .index-delta{font-family:var(--mono);font-size:0.78rem;font-weight:600;color:var(--text-muted);transition:color .4s ease;}
+  .index-delta.up{color:var(--up);}
+  .index-delta.down{color:var(--down);}
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:640px){
+    body{padding:12px;}
+    .wrap{gap:12px;}
+    .ticker-name{display:none;}
+    .header-actions{flex-wrap:wrap;}
+    .hbtn{padding:7px 10px;font-size:0.74rem;}
+    .price-hero{padding:16px 14px;}
+    .price-value{font-size:2.1rem;}
+    .price-meta{gap:12px;font-size:0.75rem;}
+    #priceChart{height:190px;}
+    .index-grid{grid-template-columns:repeat(2,1fr);}
+    .alert-panel-inner{gap:10px;}
+    .field select,.field input{min-width:100px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="topbar">
+    <a class="home-btn" href="/" aria-label="Return to home page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg>
+    </a>
+    <div class="ticker-block">
+      <span class="ticker-symbol">NXC</span>
+      <span class="ticker-name">NexaCore Technologies</span>
+    </div>
+    <div class="header-actions">
+      <button id="alertToggleBtn" class="hbtn" aria-expanded="false" aria-controls="alertPanel">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.6" fill="currentColor"/></svg>
+        Price Alert
+      </button>
+      <button id="chimeBtn" class="hbtn active-on">Chime: On</button>
+    </div>
+  </header>
+
+  <section id="alertPanel" class="alert-panel" hidden>
+    <div class="alert-panel-title">Change-price alert</div>
+    <div class="alert-panel-inner">
+      <div class="field">
+        <label for="alertDirection">Direction</label>
+        <select id="alertDirection">
+          <option value="rise">Price rises to</option>
+          <option value="fall">Price falls to</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="alertTarget">Target price ($)</label>
+        <input type="number" id="alertTarget" step="0.01" min="0">
+      </div>
+      <button id="alertApply" class="apply-btn">Apply</button>
+      <span id="alertStatus" class="alert-status">No alert set</span>
+    </div>
+  </section>
+
+  <section class="price-hero">
+    <div class="price-main">
+      <span id="priceValue" class="price-value">0.00</span>
+      <span id="priceChange" class="price-change">+0.00 (0.00%)</span>
+    </div>
+    <div class="price-meta">
+      <span>High <b id="dayHigh">–</b></span>
+      <span>Low <b id="dayLow">–</b></span>
+      <span>Open <b id="dayOpen">–</b></span>
+    </div>
+  </section>
+
+  <section class="chart-section">
+    <canvas id="priceChart"></canvas>
+  </section>
+
+  <section class="gauge-section">
+    <div class="gauge-label">
+      Progress to target <span class="tval" id="gaugeTargetLabel">no target set</span>
+    </div>
+    <div class="gauge-track">
+      <div class="gauge-fill" id="gaugeFill"></div>
+      <div class="gauge-marker" id="gaugeMarker"></div>
+    </div>
+    <div class="gauge-scale">
+      <span id="gaugeStart">–</span>
+      <span id="gaugeEnd">–</span>
+    </div>
+  </section>
+
+  <section class="market-overview">
+    <h2>Market overview</h2>
+    <div class="index-grid" id="indexGrid"></div>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============ State ============ */
+  const stock = {
+    symbol:"NXC",
+    price: 184.32,
+    open: 184.32,
+    high: 184.32,
+    low: 184.32,
+    history: []
+  };
+  const HISTORY_LEN = 90;
+  for(let i=0;i<HISTORY_LEN;i++) stock.history.push(stock.price);
+
+  const indices = [
+    {name:"S&P 500", value:5487.21, base:5487.21},
+    {name:"NASDAQ",  value:17862.44, base:17862.44},
+    {name:"DOW JONES", value:39112.05, base:39112.05},
+    {name:"VIX", value:14.22, base:14.22}
+  ];
+
+  const alertState = {
+    direction: "rise",
+    target: Math.round((stock.price*1.05)*100)/100,
+    armed: false,      // has the user applied a target
+    triggered: false   // fired already for this armed target
+  };
+
+  let chimeOn = true;
+  let audioCtx = null;
+
+  /* ============ DOM refs ============ */
+  const priceValueEl = document.getElementById('priceValue');
+  const priceChangeEl = document.getElementById('priceChange');
+  const dayHighEl = document.getElementById('dayHigh');
+  const dayLowEl = document.getElementById('dayLow');
+  const dayOpenEl = document.getElementById('dayOpen');
+  const canvas = document.getElementById('priceChart');
+  const ctx = canvas.getContext('2d');
+
+  const alertToggleBtn = document.getElementById('alertToggleBtn');
+  const alertPanel = document.getElementById('alertPanel');
+  const alertDirection = document.getElementById('alertDirection');
+  const alertTarget = document.getElementById('alertTarget');
+  const alertApply = document.getElementById('alertApply');
+  const alertStatus = document.getElementById('alertStatus');
+  const chimeBtn = document.getElementById('chimeBtn');
+
+  const gaugeFill = document.getElementById('gaugeFill');
+  const gaugeMarker = document.getElementById('gaugeMarker');
+  const gaugeTargetLabel = document.getElementById('gaugeTargetLabel');
+  const gaugeStart = document.getElementById('gaugeStart');
+  const gaugeEnd = document.getElementById('gaugeEnd');
+
+  const indexGrid = document.getElementById('indexGrid');
+
+  alertTarget.value = alertState.target.toFixed(2);
+
+  /* ============ Chime (Web Audio API) ============ */
+  function getAudioCtx(){
+    if(!audioCtx){
+      const AC = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AC();
+    }
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  // Two different oscillator "voices" so a rise-alert and a fall-alert
+  // are audibly distinct even without looking at the screen.
+  function playChime(direction){
+    if(!chimeOn) return;
+    const ac = getAudioCtx();
+    const now = ac.currentTime;
+
+    const isRise = direction === 'rise';
+    const oscType = isRise ? 'sine' : 'triangle';
+    const notes = isRise ? [880, 1174.66] : [659.25, 493.88]; // ascend for rise, descend for fall
+
+    notes.forEach((freq, i)=>{
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      osc.type = oscType;
+      osc.frequency.value = freq;
+
+      const start = now + i*0.16;
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(0.28, start + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.5);
+
+      osc.connect(gain).connect(ac.destination);
+      osc.start(start);
+      osc.stop(start + 0.55);
+    });
+  }
+
+  /* ============ Alert panel wiring (explicit control, no gear icon) ============ */
+  alertToggleBtn.addEventListener('click', ()=>{
+    const open = alertPanel.hasAttribute('hidden');
+    if(open){
+      alertPanel.removeAttribute('hidden');
+      alertToggleBtn.setAttribute('aria-expanded','true');
+    } else {
+      alertPanel.setAttribute('hidden','');
+      alertToggleBtn.setAttribute('aria-expanded','false');
+    }
+  });
+
+  alertDirection.value = alertState.direction;
+  function syncDirectionColor(){
+    alertDirection.classList.toggle('dir-rise', alertDirection.value === 'rise');
+    alertDirection.classList.toggle('dir-fall', alertDirection.value === 'fall');
+  }
+  syncDirectionColor();
+  alertDirection.addEventListener('change', syncDirectionColor);
+
+  alertApply.addEventListener('click', ()=>{
+    const dir = alertDirection.value;
+    const val = parseFloat(alertTarget.value);
+    if(isNaN(val) || val <= 0){
+      alertStatus.textContent = "Enter a valid price";
+      alertStatus.classList.remove('hit');
+      return;
+    }
+    alertState.direction = dir;
+    alertState.target = val;
+    alertState.armed = true;
+    alertState.triggered = false;
+    alertStatus.textContent = `Armed: ${dir === 'rise' ? 'rise' : 'fall'} to $${val.toFixed(2)}`;
+    alertStatus.classList.remove('hit');
+    updateGauge();
+  });
+
+  chimeBtn.addEventListener('click', ()=>{
+    chimeOn = !chimeOn;
+    chimeBtn.textContent = chimeOn ? 'Chime: On' : 'Chime: Off';
+    chimeBtn.classList.toggle('active-on', chimeOn);
+    chimeBtn.classList.toggle('active-off', !chimeOn);
+    if(chimeOn) getAudioCtx(); // unlock audio on explicit user gesture
+  });
+
+  /* ============ Price simulation ============ */
+  function tick(){
+    const prevPrice = stock.price;
+    const drift = (Math.random() - 0.5) * (stock.price * 0.006);
+    let next = stock.price + drift;
+    next = Math.max(1, next);
+    stock.price = Math.round(next * 100) / 100;
+
+    stock.high = Math.max(stock.high, stock.price);
+    stock.low = Math.min(stock.low, stock.price);
+
+    stock.history.push(stock.price);
+    if(stock.history.length > HISTORY_LEN) stock.history.shift();
+
+    indices.forEach(idx=>{
+      const d = (Math.random()-0.5) * (idx.base * 0.0015);
+      idx.value = Math.round((idx.value + d) * 100) / 100;
+    });
+
+    render(prevPrice);
+  }
+
+  /* ============ Rendering ============ */
+  function fmt(n){ return n.toFixed(2); }
+
+  function render(prevPrice){
+    const change = stock.price - stock.open;
+    const changePct = (change / stock.open) * 100;
+    const direction = stock.price > prevPrice ? 'up' : (stock.price < prevPrice ? 'down' : null);
+    const overallDir = change >= 0 ? 'up' : 'down'; // up = gain = red, down = loss = green
+
+    priceValueEl.textContent = fmt(stock.price);
+    priceValueEl.classList.remove('up','down');
+    priceValueEl.classList.add(overallDir);
+
+    priceChangeEl.textContent = `${change>=0?'+':''}${fmt(change)} (${changePct>=0?'+':''}${changePct.toFixed(2)}%)`;
+    priceChangeEl.classList.remove('up','down');
+    priceChangeEl.classList.add(overallDir);
+
+    if(direction){
+      priceValueEl.classList.remove('price-flash');
+      void priceValueEl.offsetWidth; // restart animation
+      priceValueEl.classList.add('price-flash');
+    }
+
+    dayHighEl.textContent = fmt(stock.high);
+    dayLowEl.textContent = fmt(stock.low);
+    dayOpenEl.textContent = fmt(stock.open);
+
+    renderIndices();
+    drawChart();
+    updateGauge();
+    checkAlert();
+  }
+
+  function renderIndices(){
+    indexGrid.innerHTML = '';
+    indices.forEach(idx=>{
+      const d = idx.value - idx.base;
+      const pct = (d/idx.base)*100;
+      const dir = d >= 0 ? 'up' : 'down';
+      const card = document.createElement('div');
+      card.className = 'index-card';
+      card.innerHTML = `
+        <span class="index-name">${idx.name}</span>
+        <span class="index-value">${idx.value.toFixed(2)}</span>
+        <span class="index-delta ${dir}">${d>=0?'+':''}${d.toFixed(2)} (${pct>=0?'+':''}${pct.toFixed(2)}%)</span>
+      `;
+      indexGrid.appendChild(card);
+    });
+  }
+
+  function drawChart(){
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    if(canvas.width !== rect.width*dpr || canvas.height !== rect.height*dpr){
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+    }
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const w = rect.width, h = rect.height;
+    ctx.clearRect(0,0,w,h);
+
+    const data = stock.history;
+    const min = Math.min(...data), max = Math.max(...data);
+    const pad = (max-min) * 0.15 || 1;
+    const lo = min - pad, hi = max + pad;
+
+    const overallUp = data[data.length-1] >= data[0];
+    const lineColor = overallUp ? '#e5484d' : '#30a46c';
+    const glowColor = overallUp ? 'rgba(229,72,77,0.22)' : 'rgba(48,167,108,0.22)';
+
+    // gridlines
+    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    ctx.lineWidth = 1;
+    for(let i=1;i<4;i++){
+      const y = (h/4)*i;
+      ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke();
+    }
+
+    function xAt(i){ return (i/(data.length-1)) * w; }
+    function yAt(v){ return h - ((v-lo)/(hi-lo)) * h; }
+
+    // fill under line
+    ctx.beginPath();
+    ctx.moveTo(xAt(0), h);
+    data.forEach((v,i)=> ctx.lineTo(xAt(i), yAt(v)));
+    ctx.lineTo(xAt(data.length-1), h);
+    ctx.closePath();
+    const grad = ctx.createLinearGradient(0,0,0,h);
+    grad.addColorStop(0, glowColor);
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // line
+    ctx.beginPath();
+    data.forEach((v,i)=>{
+      const x = xAt(i), y = yAt(v);
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    });
+    ctx.strokeStyle = lineColor;
+    ctx.lineWidth = 2;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+
+    // last point dot
+    const lastX = xAt(data.length-1), lastY = yAt(data[data.length-1]);
+    ctx.beginPath();
+    ctx.arc(lastX, lastY, 4, 0, Math.PI*2);
+    ctx.fillStyle = lineColor;
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(lastX, lastY, 8, 0, Math.PI*2);
+    ctx.fillStyle = glowColor;
+    ctx.fill();
+  }
+
+  function updateGauge(){
+    if(!alertState.armed){
+      gaugeTargetLabel.textContent = 'no target set';
+      gaugeFill.style.width = '0%';
+      gaugeFill.classList.remove('hit');
+      gaugeMarker.style.left = '0%';
+      gaugeStart.textContent = '–';
+      gaugeEnd.textContent = '–';
+      return;
+    }
+    const dir = alertState.direction;
+    const target = alertState.target;
+    const start = stock.open;
+    let pct;
+    if(dir === 'rise'){
+      pct = (stock.price - start) / (target - start) * 100;
+      gaugeStart.textContent = `$${fmt(start)}`;
+      gaugeEnd.textContent = `$${fmt(target)}`;
+    } else {
+      pct = (start - stock.price) / (start - target) * 100;
+      gaugeStart.textContent = `$${fmt(start)}`;
+      gaugeEnd.textContent = `$${fmt(target)}`;
+    }
+    const clamped = Math.max(0, Math.min(100, pct));
+    gaugeFill.style.width = clamped + '%';
+    gaugeMarker.style.left = clamped + '%';
+    gaugeTargetLabel.textContent = `${dir === 'rise' ? 'rise' : 'fall'} to $${fmt(target)} — ${Math.round(clamped)}%`;
+    gaugeFill.classList.toggle('hit', clamped >= 100);
+  }
+
+  function checkAlert(){
+    if(!alertState.armed || alertState.triggered) return;
+    const hit = alertState.direction === 'rise'
+      ? stock.price >= alertState.target
+      : stock.price <= alertState.target;
+    if(hit){
+      alertState.triggered = true;
+      alertStatus.textContent = `Target reached at $${fmt(stock.price)}`;
+      alertStatus.classList.add('hit');
+      playChime(alertState.direction);
+    }
+  }
+
+  /* ============ Boot ============ */
+  window.addEventListener('resize', drawChart);
+  render(stock.price);
+  setInterval(tick, 1500);
+
+})();
+</script>
+</body>
+</html>

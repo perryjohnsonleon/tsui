@@ -1,0 +1,86 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <title></title>
+        <meta http-equiv="content-type" content="text/html;charset=utf-8" />	
+        <script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+        <!-- Bootstrap icons-->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="css/styles.css" rel="stylesheet" />
+    </head>
+
+<body>
+<!-- button id="myButton" onclick="alert('OK!')">按鈕</button -->
+    <main class="flex-shrink-0">
+    <div class="my-5 text-center text-xl-start">
+    <table style="width:95%">
+    <tr>
+    <td style="width:100%">
+      <div id="hiddenMsg1">
+      </div>	  
+      <div id="hiddenElement1">
+
+      </div>
+    </td>  
+    </table>
+</div>
+ </main>
+<script>
+ let show_lotto39Rpt="", crawlString="" ;
+ console.log ('pass 0!') ;
+ // url='https://zan01.com/dailycash/trend/?back=0&period=200' ;
+ crawlString="tbody" ;
+ /*
+ url='https://jasperlinpen.github.io/exercise2/ptext.htm' ;
+ crawlString="pre" ;
+ */
+       $.ajax({
+            url: "https://biga.com.tw/99567/ajax_history_compact_A.php",
+            type: "POST",
+            dataType: 'text',
+            data: { lotto: 'A',                    
+                    datefrom: '2024/01/01',
+                     dateto: '2024/12/31',          
+                      disporder:'D'
+            },
+            success: function (msg) {
+                 console.log(msg) ;
+                $('#hiddenElement1').html('');
+                $('#hiddenElement1').html(msg); 
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(xhr.status);
+                alert(thrownError);
+            }
+
+        });
+
+
+ /* Anthothr crawl  solution  
+   fetch(url)
+    .then(response => response.text())
+    .then(html => {
+        // Parse the HTML string into a DOM object
+		console.log ('pass 1!')
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        // Filter tags (e.g., <p> tags)
+        const paragraphs = doc.querySelectorAll(crawlString);
+        paragraphs.forEach(pre => {
+		   show_lotto39Rpt=pre.textContent ;
+		   $("#hiddenElement1").html(show_lotto39Rpt); 
+		 //  console.log ('pass 2!') ;
+         //  console.log(pre.textContent); // Logs the text content of each <p> tag
+         
+		});
+    })
+    .catch(error => console.error('Error fetching HTML:', error));
+ */	
+    console.log ('pass 99!') ;
+</script>
+</body>
+</html>

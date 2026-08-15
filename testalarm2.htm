@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VRA — Orion Exchange</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0C10;
+    --panel:#12151B;
+    --panel-2:#161A21;
+    --border:#1E232B;
+    --grid:#1A1E25;
+    --text-1:#E8EAED;
+    --text-2:#8B93A1;
+    --text-3:#5A6272;
+    --gain:#FF4757;
+    --gain-dim:rgba(255,71,87,0.14);
+    --loss:#2ED573;
+    --loss-dim:rgba(46,213,115,0.14);
+    --amber:#FFB020;
+    --amber-dim:rgba(255,176,32,0.14);
+    --radius:10px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    background:var(--bg);
+    color:var(--text-1);
+    font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    padding:18px 18px 48px;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;}
+  .wrap{max-width:960px;margin:0 auto;display:flex;flex-direction:column;gap:14px;}
+
+  /* header */
+  header{
+    display:flex;align-items:center;gap:14px;
+    padding:2px 2px 4px;
+  }
+  .home-btn{
+    display:flex;align-items:center;justify-content:center;
+    width:38px;height:38px;flex:none;
+    border:1px solid var(--border);border-radius:var(--radius);
+    background:var(--panel);color:var(--text-2);
+    text-decoration:none;
+    transition:border-color .15s ease, color .15s ease, background .15s ease;
+  }
+  .home-btn:hover{border-color:var(--text-3);color:var(--text-1);background:var(--panel-2);}
+  .home-btn svg{width:18px;height:18px;}
+
+  .id-block{display:flex;flex-direction:column;line-height:1.2;flex:1;min-width:0;}
+  .ticker-row{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;}
+  .ticker{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:19px;letter-spacing:0.5px;}
+  .exchange{font-size:11px;color:var(--text-3);letter-spacing:1.2px;text-transform:uppercase;}
+  .company{font-size:12.5px;color:var(--text-2);}
+
+  .live-dot{
+    width:7px;height:7px;border-radius:50%;background:var(--amber);flex:none;
+    box-shadow:0 0 0 0 rgba(255,176,32,.6);
+    animation:livepulse 2s infinite;
+  }
+  @keyframes livepulse{
+    0%{box-shadow:0 0 0 0 rgba(255,176,32,.45);}
+    70%{box-shadow:0 0 0 6px rgba(255,176,32,0);}
+    100%{box-shadow:0 0 0 0 rgba(255,176,32,0);}
+  }
+
+  .header-actions{display:flex;gap:8px;flex:none;}
+  .action-btn{
+    display:flex;align-items:center;gap:7px;
+    border:1px solid var(--border);border-radius:var(--radius);
+    background:var(--panel);color:var(--text-1);
+    font-family:'Inter',sans-serif;font-size:12.5px;font-weight:500;
+    padding:8px 12px;cursor:pointer;
+    transition:border-color .15s ease, background .15s ease;
+    white-space:nowrap;
+  }
+  .action-btn:hover{border-color:var(--text-3);background:var(--panel-2);}
+  .action-btn svg{width:15px;height:15px;flex:none;}
+  .action-btn.chime-on{border-color:var(--amber);color:var(--amber);}
+  .action-btn.chime-on svg{stroke:var(--amber);}
+
+  /* hero */
+  .hero{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:22px 22px 20px;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:16px;
+  }
+  .price-main{display:flex;flex-direction:column;gap:6px;}
+  .price-label{font-size:11px;letter-spacing:1.4px;color:var(--text-3);text-transform:uppercase;}
+  .price-value{
+    font-family:'JetBrains Mono',monospace;
+    font-size:44px;font-weight:700;
+    transition:color .35s ease;
+    color:var(--text-1);
+  }
+  .price-value.up{color:var(--gain);}
+  .price-value.down{color:var(--loss);}
+  .price-value.pulse{animation:pulseScale .5s ease;}
+  @keyframes pulseScale{
+    0%{transform:scale(1);}
+    30%{transform:scale(1.035);}
+    100%{transform:scale(1);}
+  }
+  .change-badge{
+    display:inline-flex;align-items:center;gap:6px;
+    font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:500;
+    padding:5px 10px;border-radius:7px;
+    background:var(--panel-2);color:var(--text-2);
+    transition:background .35s ease, color .35s ease;
+    width:fit-content;
+  }
+  .change-badge.up{background:var(--gain-dim);color:var(--gain);}
+  .change-badge.down{background:var(--loss-dim);color:var(--loss);}
+  .change-badge svg{width:12px;height:12px;}
+
+  .price-row{display:flex;align-items:baseline;gap:22px;flex-wrap:wrap;width:100%;}
+
+  .day-stats{display:flex;gap:24px;margin-left:auto;}
+  .day-stat{display:flex;flex-direction:column;gap:3px;align-items:flex-end;}
+  .day-stat .lbl{font-size:11px;letter-spacing:1px;color:var(--text-3);text-transform:uppercase;}
+  .day-stat .val{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:500;color:var(--text-2);transition:color .3s ease;}
+  .day-stat .val.hi{color:var(--gain);}
+  .day-stat .val.lo{color:var(--loss);}
+
+  .alert-status{
+    display:flex;flex-direction:column;gap:5px;align-items:flex-end;
+    font-size:12px;color:var(--text-2);
+    min-width:180px;
+  }
+  .alert-status .row{display:flex;align-items:center;gap:6px;}
+  .alert-status .target-val{font-family:'JetBrains Mono',monospace;color:var(--text-1);font-weight:500;}
+  .alert-armed-dot{width:6px;height:6px;border-radius:50%;background:var(--text-3);}
+  .alert-armed-dot.armed{background:var(--amber);}
+  .alert-armed-dot.fired{background:var(--gain);}
+
+  /* market overview */
+  .overview-title{font-size:11px;letter-spacing:1.4px;color:var(--text-3);text-transform:uppercase;padding:2px 2px 0;}
+  .overview-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  .idx-card{
+    background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
+    padding:13px 14px;display:flex;flex-direction:column;gap:6px;
+  }
+  .idx-name{font-size:11.5px;color:var(--text-2);}
+  .idx-value{font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:500;transition:color .35s ease;}
+  .idx-change{font-family:'JetBrains Mono',monospace;font-size:12px;transition:color .35s ease;}
+  .idx-value.up,.idx-change.up{color:var(--gain);}
+  .idx-value.down,.idx-change.down{color:var(--loss);}
+
+  /* chart card */
+  .chart-card{
+    background:var(--panel);border:1px solid var(--border);border-radius:14px;
+    padding:16px 16px 14px;
+  }
+  .chart-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .chart-head .h{font-size:11px;letter-spacing:1.4px;color:var(--text-3);text-transform:uppercase;}
+  .chart-legend{display:flex;gap:14px;font-size:11.5px;color:var(--text-2);}
+  .chart-legend .dot{display:inline-block;width:8px;height:2px;margin-right:5px;vertical-align:middle;}
+  #priceCanvas{display:block;width:100%;height:260px;}
+
+  /* gauge card */
+  .gauge-card{
+    background:var(--panel);border:1px solid var(--border);border-radius:14px;
+    padding:18px 20px 20px;
+  }
+  .gauge-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;flex-wrap:wrap;gap:6px;}
+  .gauge-head .h{font-size:11px;letter-spacing:1.4px;color:var(--text-3);text-transform:uppercase;}
+  .gauge-pct{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text-1);}
+  .gauge-track{
+    position:relative;height:10px;border-radius:6px;background:var(--grid);overflow:visible;
+  }
+  .gauge-fill{
+    position:absolute;left:0;top:0;height:100%;border-radius:6px;
+    width:0%;
+    background:var(--loss);
+    transition:width .5s ease, background .35s ease;
+  }
+  .gauge-fill.rise{background:var(--gain);}
+  .gauge-marker{
+    position:absolute;top:50%;width:2px;height:20px;background:var(--text-1);
+    transform:translate(-1px,-50%);transition:left .5s ease;
+    left:0%;
+  }
+  .gauge-labels{display:flex;justify-content:space-between;margin-top:10px;font-size:11.5px;color:var(--text-2);}
+  .gauge-labels .val{font-family:'JetBrains Mono',monospace;color:var(--text-1);}
+
+  /* settings drawer */
+  .overlay{
+    position:fixed;inset:0;background:rgba(4,5,7,0.6);
+    display:none;align-items:flex-start;justify-content:center;
+    padding:60px 16px;z-index:50;
+  }
+  .overlay.open{display:flex;}
+  .drawer{
+    background:var(--panel);border:1px solid var(--border);border-radius:14px;
+    width:100%;max-width:400px;padding:20px 20px 18px;
+    display:flex;flex-direction:column;gap:16px;
+  }
+  .drawer-head{display:flex;justify-content:space-between;align-items:center;}
+  .drawer-head h2{font-size:15px;font-weight:600;}
+  .close-btn{
+    background:none;border:none;color:var(--text-2);cursor:pointer;
+    width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+    border-radius:6px;
+  }
+  .close-btn:hover{background:var(--panel-2);color:var(--text-1);}
+  .field-label{font-size:11.5px;color:var(--text-2);letter-spacing:.4px;text-transform:uppercase;margin-bottom:8px;display:block;}
+  .dir-toggle{display:flex;gap:8px;}
+  .dir-btn{
+    flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);
+    background:var(--panel-2);color:var(--text-2);font-family:'Inter';font-size:13px;font-weight:500;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;
+    transition:all .15s ease;
+  }
+  .dir-btn svg{width:14px;height:14px;}
+  .dir-btn.selected.rise{border-color:var(--gain);color:var(--gain);background:var(--gain-dim);}
+  .dir-btn.selected.fall{border-color:var(--loss);color:var(--loss);background:var(--loss-dim);}
+  .price-input{
+    width:100%;padding:11px 12px;border-radius:8px;border:1px solid var(--border);
+    background:var(--panel-2);color:var(--text-1);font-family:'JetBrains Mono',monospace;
+    font-size:16px;outline:none;
+  }
+  .price-input:focus{border-color:var(--text-3);}
+  .save-btn{
+    padding:12px;border-radius:8px;border:1px solid var(--amber);background:var(--amber-dim);
+    color:var(--amber);font-family:'Inter';font-weight:600;font-size:13.5px;cursor:pointer;
+  }
+  .save-btn:hover{background:rgba(255,176,32,0.22);}
+  .drawer-note{font-size:11.5px;color:var(--text-3);line-height:1.5;}
+
+  @media (max-width:640px){
+    body{padding:12px 12px 40px;}
+    .overview-grid{grid-template-columns:1fr;}
+    .price-value{font-size:34px;}
+    .hero{padding:18px 16px;}
+    .alert-status{align-items:flex-start;width:100%;}
+    .header-actions{flex-wrap:wrap;}
+    .action-btn span{display:none;}
+    .action-btn{padding:9px;}
+    #priceCanvas{height:200px;}
+    .day-stats{margin-left:0;gap:16px;}
+    .day-stat{align-items:flex-start;}
+    .day-stat .val{font-size:15px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <a class="home-btn" href="/" title="Home" aria-label="Return to home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg>
+    </a>
+    <div class="id-block">
+      <div class="ticker-row">
+        <span class="ticker">VRA</span>
+        <span class="live-dot" title="Live"></span>
+        <span class="exchange">Orion Exchange</span>
+      </div>
+      <span class="company">Vera Technologies Inc.</span>
+    </div>
+    <div class="header-actions">
+      <button class="action-btn" id="alertBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span>Price alert</span>
+      </button>
+      <button class="action-btn" id="chimeBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+        <span id="chimeLabel">Chime on</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="hero">
+    <div class="price-main">
+      <span class="price-label">Vera Technologies · VRA</span>
+      <div class="price-row">
+        <span class="price-value mono" id="priceValue">184.20</span>
+        <div class="day-stats">
+          <div class="day-stat">
+            <span class="lbl">Open</span>
+            <span class="val mono" id="dayOpen">184.20</span>
+          </div>
+          <div class="day-stat">
+            <span class="lbl">High</span>
+            <span class="val hi mono" id="dayHigh">184.20</span>
+          </div>
+          <div class="day-stat">
+            <span class="lbl">Low</span>
+            <span class="val lo mono" id="dayLow">184.20</span>
+          </div>
+        </div>
+      </div>
+      <span class="change-badge mono" id="changeBadge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" id="changeArrow"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
+        <span id="changeText">0.00 (0.00%)</span>
+      </span>
+    </div>
+    <div class="alert-status">
+      <div class="row"><span class="alert-armed-dot" id="armedDot"></span><span id="alertStatusText">No alert set</span></div>
+      <div class="row">Target <span class="target-val" id="targetDisplay">—</span></div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-head">
+      <span class="h">Price history</span>
+      <div class="chart-legend">
+        <span><span class="dot" style="background:var(--text-1);"></span>Price</span>
+        <span><span class="dot" style="background:var(--amber);border-top:2px dashed var(--amber);height:0;"></span>Open</span>
+      </div>
+    </div>
+    <canvas id="priceCanvas"></canvas>
+  </div>
+
+  <div class="gauge-card">
+    <div class="gauge-head">
+      <span class="h">Progress to target</span>
+      <span class="gauge-pct mono" id="gaugePct">0%</span>
+    </div>
+    <div class="gauge-track">
+      <div class="gauge-fill" id="gaugeFill"></div>
+      <div class="gauge-marker" id="gaugeMarker"></div>
+    </div>
+    <div class="gauge-labels">
+      <span>Open <span class="val" id="gaugeOpen">184.20</span></span>
+      <span>Current <span class="val" id="gaugeCurrent">184.20</span></span>
+      <span>Target <span class="val" id="gaugeTarget">—</span></span>
+    </div>
+  </div>
+
+  <div class="overview-title">Market overview</div>
+  <div class="overview-grid">
+    <div class="idx-card">
+      <span class="idx-name">Orion 500</span>
+      <span class="idx-value mono" id="idx0-val">5,412.30</span>
+      <span class="idx-change mono" id="idx0-chg">+0.00%</span>
+    </div>
+    <div class="idx-card">
+      <span class="idx-name">Tech aggregate</span>
+      <span class="idx-value mono" id="idx1-val">17,880.05</span>
+      <span class="idx-change mono" id="idx1-chg">+0.00%</span>
+    </div>
+    <div class="idx-card">
+      <span class="idx-name">Volatility gauge</span>
+      <span class="idx-value mono" id="idx2-val">14.62</span>
+      <span class="idx-change mono" id="idx2-chg">+0.00%</span>
+    </div>
+  </div>
+
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="drawer">
+    <div class="drawer-head">
+      <h2>Price alert</h2>
+      <button class="close-btn" id="closeDrawer" aria-label="Close">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div>
+      <label class="field-label">Expected direction</label>
+      <div class="dir-toggle">
+        <button class="dir-btn rise" id="dirRise">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
+          Rise
+        </button>
+        <button class="dir-btn fall" id="dirFall">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+          Fall
+        </button>
+      </div>
+    </div>
+    <div>
+      <label class="field-label" for="targetInput">Target price (USD)</label>
+      <input class="price-input mono" type="number" id="targetInput" step="0.01" value="190.00">
+    </div>
+    <button class="save-btn" id="saveAlert">Save alert</button>
+    <p class="drawer-note">When VRA reaches the target price in the expected direction, a chimebell alert rings for two minutes. Enable chime with the header button.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+  var state = {
+    price: 184.20,
+    open: 184.20,
+    dayHigh: 184.20,
+    dayLow: 184.20,
+    history: [184.20],
+    direction: 'rise',
+    target: 190.00,
+    chimeOn: true,
+    prevHit: false,
+    ringing: false,
+    ringEndAt: 0,
+    ringTimer: null,
+    activeNodes: []
+  };
+
+  var indices = [
+    { base: 5412.30, val: 5412.30, dec: 2, thousands: true },
+    { base: 17880.05, val: 17880.05, dec: 2, thousands: true },
+    { base: 14.62, val: 14.62, dec: 2, thousands: false }
+  ];
+
+  var audioCtx = null;
+  function getAudioCtx(){
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  function playChime(times, direction){
+    var ctx = getAudioCtx();
+    var ascending = [523.25, 659.25, 783.99, 1046.5];
+    var notes = direction === 'fall' ? ascending.slice().reverse() : ascending;
+    var oscType = direction === 'fall' ? 'triangle' : 'sine';
+    var count = Math.min(times, 12);
+    for (var i = 0; i < count; i++){
+      (function(i){
+        var delay = i * 0.72;
+        notes.forEach(function(freq, ni){
+          var t = ctx.currentTime + delay + ni * 0.11;
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.type = oscType;
+          osc.frequency.setValueAtTime(freq, t);
+          gain.gain.setValueAtTime(0, t);
+          gain.gain.linearRampToValueAtTime(0.18, t + 0.01);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t + 1.6);
+          osc.start(t);
+          osc.stop(t + 1.8);
+          state.activeNodes.push({ osc: osc, gain: gain });
+
+          var osc2 = ctx.createOscillator();
+          var gain2 = ctx.createGain();
+          osc2.connect(gain2);
+          gain2.connect(ctx.destination);
+          osc2.type = oscType;
+          osc2.frequency.setValueAtTime(freq * 2.756, t);
+          gain2.gain.setValueAtTime(0, t);
+          gain2.gain.linearRampToValueAtTime(0.05, t + 0.01);
+          gain2.gain.exponentialRampToValueAtTime(0.0001, t + 0.8);
+          osc2.start(t);
+          osc2.stop(t + 1.0);
+          state.activeNodes.push({ osc: osc2, gain: gain2 });
+        });
+      })(i);
+    }
+  }
+
+  function silenceAllChimes(){
+    var ctx = getAudioCtx();
+    var now = ctx.currentTime;
+    state.activeNodes.forEach(function(node){
+      try {
+        node.gain.gain.cancelScheduledValues(now);
+        node.gain.gain.setValueAtTime(0, now);
+        node.osc.stop(now);
+      } catch (e) {}
+    });
+    state.activeNodes = [];
+  }
+
+  var RING_DURATION_MS = 2 * 60 * 1000;
+  function startRinging(){
+    if (state.ringing) return;
+    state.ringing = true;
+    state.ringEndAt = Date.now() + RING_DURATION_MS;
+    ringLoop();
+  }
+  function ringLoop(){
+    if (!state.chimeOn || Date.now() >= state.ringEndAt){
+      state.ringing = false;
+      return;
+    }
+    playChime(12, state.direction);
+    state.ringTimer = setTimeout(ringLoop, 12 * 0.72 * 1000 + 300);
+  }
+  function stopRinging(){
+    state.ringing = false;
+    state.ringEndAt = 0;
+    if (state.ringTimer) clearTimeout(state.ringTimer);
+    silenceAllChimes();
+  }
+
+  var alertBtn = document.getElementById('alertBtn');
+  var overlay = document.getElementById('overlay');
+  var closeDrawer = document.getElementById('closeDrawer');
+  var dirRise = document.getElementById('dirRise');
+  var dirFall = document.getElementById('dirFall');
+  var targetInput = document.getElementById('targetInput');
+  var saveAlert = document.getElementById('saveAlert');
+  var chimeBtn = document.getElementById('chimeBtn');
+  var chimeLabel = document.getElementById('chimeLabel');
+
+  var pendingDirection = state.direction;
+
+  function setDirButtons(){
+    dirRise.classList.toggle('selected', pendingDirection === 'rise');
+    dirFall.classList.toggle('selected', pendingDirection === 'fall');
+  }
+  setDirButtons();
+
+  alertBtn.addEventListener('click', function(){
+    getAudioCtx();
+    overlay.classList.add('open');
+  });
+  closeDrawer.addEventListener('click', function(){ overlay.classList.remove('open'); });
+  overlay.addEventListener('click', function(e){ if (e.target === overlay) overlay.classList.remove('open'); });
+
+  dirRise.addEventListener('click', function(){ pendingDirection = 'rise'; setDirButtons(); });
+  dirFall.addEventListener('click', function(){ pendingDirection = 'fall'; setDirButtons(); });
+
+  saveAlert.addEventListener('click', function(){
+    var v = parseFloat(targetInput.value);
+    if (isNaN(v) || v <= 0){
+      targetInput.style.borderColor = 'var(--gain)';
+      return;
+    }
+    targetInput.style.borderColor = '';
+    state.direction = pendingDirection;
+    state.target = v;
+    state.prevHit = false;
+    stopRinging();
+    updateAlertStatus();
+    overlay.classList.remove('open');
+  });
+
+  chimeBtn.addEventListener('click', function(){
+    getAudioCtx();
+    state.chimeOn = !state.chimeOn;
+    chimeBtn.classList.toggle('chime-on', state.chimeOn);
+    chimeLabel.textContent = state.chimeOn ? 'Chime on' : 'Chime off';
+    if (!state.chimeOn) stopRinging();
+  });
+  chimeBtn.classList.add('chime-on');
+
+  var armedDot = document.getElementById('armedDot');
+  var alertStatusText = document.getElementById('alertStatusText');
+  var targetDisplay = document.getElementById('targetDisplay');
+
+  function updateAlertStatus(){
+    targetInput.value = state.target.toFixed(2);
+    targetDisplay.textContent = '$' + state.target.toFixed(2);
+    var dirWord = state.direction === 'rise' ? 'Rise to' : 'Fall to';
+    alertStatusText.textContent = dirWord + ' $' + state.target.toFixed(2);
+    armedDot.className = 'alert-armed-dot ' + (state.prevHit ? 'fired' : 'armed');
+  }
+  updateAlertStatus();
+
+  var priceValue = document.getElementById('priceValue');
+  var changeBadge = document.getElementById('changeBadge');
+  var changeText = document.getElementById('changeText');
+  var changeArrow = document.getElementById('changeArrow');
+
+  function updateHero(){
+    var change = state.price - state.open;
+    var pct = (change / state.open) * 100;
+    var dirClass = change > 0.001 ? 'up' : (change < -0.001 ? 'down' : '');
+
+    priceValue.textContent = state.price.toFixed(2);
+    priceValue.className = 'price-value mono pulse ' + dirClass;
+    void priceValue.offsetWidth;
+    priceValue.classList.add('pulse');
+
+    changeBadge.className = 'change-badge mono ' + dirClass;
+    var sign = change >= 0 ? '+' : '';
+    changeText.textContent = sign + change.toFixed(2) + ' (' + sign + pct.toFixed(2) + '%)';
+    changeArrow.style.display = dirClass ? 'block' : 'none';
+    if (dirClass === 'down'){
+      changeArrow.innerHTML = '<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>';
+    } else {
+      changeArrow.innerHTML = '<path d="M12 19V5"/><path d="m5 12 7-7 7 7"/>';
+    }
+  }
+
+  var dayOpenEl = document.getElementById('dayOpen');
+  var dayHighEl = document.getElementById('dayHigh');
+  var dayLowEl = document.getElementById('dayLow');
+
+  function updateDayStats(){
+    dayOpenEl.textContent = state.open.toFixed(2);
+    dayHighEl.textContent = state.dayHigh.toFixed(2);
+    dayLowEl.textContent = state.dayLow.toFixed(2);
+  }
+
+  function updateIndices(){
+    indices.forEach(function(idx, i){
+      var drift = (Math.random() - 0.5) * (idx.base * 0.0009);
+      idx.val = Math.max(0.01, idx.val + drift);
+      var chg = ((idx.val - idx.base) / idx.base) * 100;
+      var dirClass = chg > 0.001 ? 'up' : (chg < -0.001 ? 'down' : '');
+      var valEl = document.getElementById('idx' + i + '-val');
+      var chgEl = document.getElementById('idx' + i + '-chg');
+      var displayVal = idx.thousands
+        ? idx.val.toLocaleString(undefined, { minimumFractionDigits: idx.dec, maximumFractionDigits: idx.dec })
+        : idx.val.toFixed(idx.dec);
+      valEl.textContent = displayVal;
+      valEl.className = 'idx-value mono ' + dirClass;
+      var sign = chg >= 0 ? '+' : '';
+      chgEl.textContent = sign + chg.toFixed(2) + '%';
+      chgEl.className = 'idx-change mono ' + dirClass;
+    });
+  }
+
+  var gaugeFill = document.getElementById('gaugeFill');
+  var gaugeMarker = document.getElementById('gaugeMarker');
+  var gaugePct = document.getElementById('gaugePct');
+  var gaugeOpen = document.getElementById('gaugeOpen');
+  var gaugeCurrent = document.getElementById('gaugeCurrent');
+  var gaugeTarget = document.getElementById('gaugeTarget');
+
+  function updateGauge(){
+    gaugeOpen.textContent = state.open.toFixed(2);
+    gaugeCurrent.textContent = state.price.toFixed(2);
+    gaugeTarget.textContent = '$' + state.target.toFixed(2);
+
+    var progress;
+    if (state.direction === 'rise'){
+      var span = state.target - state.open;
+      progress = span !== 0 ? (state.price - state.open) / span : 0;
+    } else {
+      var span2 = state.open - state.target;
+      progress = span2 !== 0 ? (state.open - state.price) / span2 : 0;
+    }
+    progress = Math.max(0, Math.min(1, progress));
+    var pctStr = Math.round(progress * 100) + '%';
+    gaugePct.textContent = pctStr;
+    gaugeFill.style.width = pctStr;
+    gaugeFill.classList.toggle('rise', state.direction === 'rise');
+    gaugeMarker.style.left = pctStr;
+  }
+
+  function checkAlert(){
+    var hit = state.direction === 'rise' ? state.price >= state.target : state.price <= state.target;
+    if (hit && !state.prevHit){
+      if (state.chimeOn) startRinging();
+      armedDot.className = 'alert-armed-dot fired';
+    } else if (!hit) {
+      armedDot.className = 'alert-armed-dot armed';
+    }
+    state.prevHit = hit;
+  }
+
+  var canvas = document.getElementById('priceCanvas');
+  var ctx2d = canvas.getContext('2d');
+
+  function resizeCanvas(){
+    var rect = canvas.getBoundingClientRect();
+    var dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx2d.setTransform(dpr, 0, 0, dpr, 0, 0);
+    drawChart();
+  }
+
+  function drawChart(){
+    var w = canvas.getBoundingClientRect().width;
+    var h = canvas.getBoundingClientRect().height;
+    ctx2d.clearRect(0, 0, w, h);
+
+    var hist = state.history;
+    var padTop = 16, padBottom = 22, padLeft = 4, padRight = 4;
+    var plotH = h - padTop - padBottom;
+    var plotW = w - padLeft - padRight;
+
+    var minV = Math.min.apply(null, hist.concat([state.open]));
+    var maxV = Math.max.apply(null, hist.concat([state.open]));
+    var range = maxV - minV;
+    if (range < 0.01) range = 1;
+    var padRange = range * 0.18;
+    minV -= padRange;
+    maxV += padRange;
+    range = maxV - minV;
+
+    function xFor(i){ return padLeft + (i / (hist.length - 1)) * plotW; }
+    function yFor(v){ return padTop + plotH - ((v - minV) / range) * plotH; }
+
+    ctx2d.strokeStyle = '#1A1E25';
+    ctx2d.lineWidth = 1;
+    var gridLines = 4;
+    for (var g = 0; g <= gridLines; g++){
+      var gy = padTop + (plotH / gridLines) * g;
+      ctx2d.beginPath();
+      ctx2d.moveTo(padLeft, gy);
+      ctx2d.lineTo(w - padRight, gy);
+      ctx2d.stroke();
+    }
+
+    var openY = yFor(state.open);
+    ctx2d.save();
+    ctx2d.setLineDash([5, 5]);
+    ctx2d.strokeStyle = '#FFB020';
+    ctx2d.lineWidth = 1.4;
+    ctx2d.beginPath();
+    ctx2d.moveTo(padLeft, openY);
+    ctx2d.lineTo(w - padRight, openY);
+    ctx2d.stroke();
+    ctx2d.restore();
+
+    ctx2d.fillStyle = '#FFB020';
+    ctx2d.font = '10.5px JetBrains Mono, monospace';
+    ctx2d.textBaseline = 'bottom';
+    ctx2d.fillText('OPEN ' + state.open.toFixed(2), padLeft + 4, openY - 3);
+
+    var lineColor = state.price >= state.open ? '#FF4757' : '#2ED573';
+    var fillColorTop = state.price >= state.open ? 'rgba(255,71,87,0.20)' : 'rgba(46,213,115,0.20)';
+    var fillColorBottom = state.price >= state.open ? 'rgba(255,71,87,0.0)' : 'rgba(46,213,115,0.0)';
+
+    var grad = ctx2d.createLinearGradient(0, padTop, 0, padTop + plotH);
+    grad.addColorStop(0, fillColorTop);
+    grad.addColorStop(1, fillColorBottom);
+
+    ctx2d.beginPath();
+    hist.forEach(function(v, i){
+      var x = xFor(i), y = yFor(v);
+      if (i === 0) ctx2d.moveTo(x, y); else ctx2d.lineTo(x, y);
+    });
+    ctx2d.lineTo(xFor(hist.length - 1), padTop + plotH);
+    ctx2d.lineTo(xFor(0), padTop + plotH);
+    ctx2d.closePath();
+    ctx2d.fillStyle = grad;
+    ctx2d.fill();
+
+    ctx2d.beginPath();
+    hist.forEach(function(v, i){
+      var x = xFor(i), y = yFor(v);
+      if (i === 0) ctx2d.moveTo(x, y); else ctx2d.lineTo(x, y);
+    });
+    ctx2d.strokeStyle = lineColor;
+    ctx2d.lineWidth = 2;
+    ctx2d.lineJoin = 'round';
+    ctx2d.stroke();
+
+    var lastX = xFor(hist.length - 1);
+    var lastY = yFor(hist[hist.length - 1]);
+    ctx2d.beginPath();
+    ctx2d.arc(lastX, lastY, 4, 0, Math.PI * 2);
+    ctx2d.fillStyle = lineColor;
+    ctx2d.fill();
+    ctx2d.beginPath();
+    ctx2d.arc(lastX, lastY, 7, 0, Math.PI * 2);
+    ctx2d.strokeStyle = lineColor;
+    ctx2d.globalAlpha = 0.35;
+    ctx2d.lineWidth = 1.5;
+    ctx2d.stroke();
+    ctx2d.globalAlpha = 1;
+  }
+
+  window.addEventListener('resize', resizeCanvas);
+
+  function tick(){
+    var volatility = 0.32;
+    var drift = (Math.random() - 0.5) * volatility;
+    state.price = Math.max(0.5, state.price + drift);
+    state.history.push(state.price);
+    if (state.history.length > 90) state.history.shift();
+    if (state.price > state.dayHigh) state.dayHigh = state.price;
+    if (state.price < state.dayLow) state.dayLow = state.price;
+
+    updateHero();
+    updateDayStats();
+    updateIndices();
+    updateGauge();
+    drawChart();
+    checkAlert();
+  }
+
+  for (var i = 0; i < 40; i++){
+    var d = (Math.random() - 0.5) * 0.32;
+    state.price = Math.max(0.5, state.price + d);
+    state.history.push(state.price);
+  }
+  state.open = state.history[0];
+  state.dayHigh = Math.max.apply(null, state.history);
+  state.dayLow = Math.min.apply(null, state.history);
+
+  resizeCanvas();
+  updateHero();
+  updateDayStats();
+  updateIndices();
+  updateGauge();
+  updateAlertStatus();
+
+  setInterval(tick, 1500);
+})();
+</script>
+</body>
+</html>

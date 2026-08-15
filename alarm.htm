@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>鬧鐘時間設定</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+	 :root {
+      --bg: #060810;
+      --panel: #0c1020;
+      --glow: #00f0ff;
+      --glow2: #ff2d78;
+      --dim: #0a2a30;
+      --text: #e0faff;
+      --tick: #1a3a45;	  
+	  --surface: #0d1117;
+	  --border: rgba(255,255,255,0.06);
+	  --muted: #4a5068;
+	  --label: #e0faff;
+	  --wilabel: #4a5068;	  
+	  --gain: #ff1744;
+	  --loss: #00e676;
+	  --gain-dim: rgba(255,23,68,0.08);
+	  --loss-dim: rgba(0,230,118,0.08);
+	  --accent: #5c7cfa;
+	  --accent-dim: rgba(92,124,250,0.12);
+	  --grid: rgba(255,255,255,0.025);
+    }
+
+    body {
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Share Tech Mono', monospace;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Animated grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,240,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,240,255,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      animation: gridMove 20s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes gridMove {
+      0%   { transform: translateY(0); }
+      100% { transform: translateY(40px); }
+    }
+
+    /* Ambient orbs */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+    }
+    .orb1 {
+      width: 400px; height: 400px;
+      background: rgba(0, 240, 255, 0.07);
+      top: -100px; left: -100px;
+      animation: orbFloat1 12s ease-in-out infinite alternate;
+    }
+    .orb2 {
+      width: 350px; height: 350px;
+      background: rgba(255, 45, 120, 0.06);
+      bottom: -80px; right: -80px;
+      animation: orbFloat2 14s ease-in-out infinite alternate;
+    }
+
+    @keyframes orbFloat1 { to { transform: translate(60px, 80px); } }
+    @keyframes orbFloat2 { to { transform: translate(-60px, -80px); } }
+
+    /* Wrapper */
+    .clock-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 36px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Header label */
+    .label {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 13px;
+	  font-weight: bold;
+      letter-spacing: 8px;
+      color: var(--glow);
+      opacity: 0.6;
+      text-transform: uppercase;
+    }
+
+	.custom-btn {
+	 font-size: 22px;            
+	 background-color: #3498db;
+	 color: #000;
+	 padding: 2px;
+	 border: 1px solid #ccc;
+	 border-radius: 5px;
+	 cursor: pointer;
+	  }
+  
+    select {
+     background-color: #B8D7D9;
+	 font-size: 22px;
+	 font-weight: 800;
+	 padding: 2px;
+	 border: 1px solid #ccc;
+	 border-radius: 4px;
+	}
+	
+    .custom-select1 {
+	 color: #8A23DB;
+	}
+	
+	.custom-select2 {
+	 color: #483FF1;
+	}
+	
+	.custom-select3 {
+	 color: #333;
+	}
+
+    /* Analog clock */
+    .analog-wrap {
+      position: relative;
+      width: 240px;
+      height: 240px;
+    }
+
+    .ring-outer {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 1px solid rgba(0,240,255,0.15);
+      box-shadow:
+        0 0 0 8px rgba(0,240,255,0.04),
+        0 0 40px rgba(0,240,255,0.08),
+        inset 0 0 40px rgba(0,240,255,0.05);
+      background: radial-gradient(circle at 40% 30%, rgba(0,240,255,0.06), transparent 60%),
+                  radial-gradient(circle at 60% 70%, rgba(255,45,120,0.04), transparent 60%),
+                  var(--panel);
+    }
+	
+    #toggleBtn {	
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 4px;
+      font-size: 20px;
+      font-weight: bold;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      background: #E8D7AC;
+      color: #1a1a1a;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s, transform 0.1s;
+    }
+    #toggleBtn:hover  { background: #f0efea; }
+    #toggleBtn:active { transform: scale(0.97); }
+	
+	  /* ── STATS GRID ─────────────────────────────── */
+	 .stats-grid {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: 3px;
+		margin-bottom: 4px;
+	 }
+
+	 .stat-card {
+	 	display:flex;
+		vertical-align: auto;
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: 12px;
+		padding: 8px 10px;
+		position: relative;
+		overflow: hidden;
+		transition: border-color 0.3s;
+	 }
+
+    .stat-card:hover { border-color: rgba(255,255,255,0.12); }
+	.stat-label {
+		font-family: 'Syne', sans-serif;
+		font-size: 1.3rem;
+		font-weight: 600;
+		color: var(--label);
+		transition: color 0.4s;
+		display:flex;
+		align-items:flex-end;
+	  }
+	  
+	  .wi-label {
+		font-family: 'Syne', sans-serif;
+		font-size: 0.6rem;
+		font-weight: 600;
+		color: var(--wilabel);
+		transition: color 0.4s;
+		display:flex;
+		align-items:center;
+	  }
+
+	.stat-value {
+		font-family: 'Syne', sans-serif;
+		font-size: 1.3rem;
+		font-weight: 600;
+		color: #fff;
+		transition: color 0.4s;
+		display:flex;
+		align-items:flex-end;
+	  }
+
+	.stat-sub {
+		font-size: 0.64rem;
+		color: var(--muted);
+		margin-top: 4px;
+	  }
+
+	.label-text { color: var(--label); }
+	.loss-text { color: var(--loss); }
+	.gain-text { color: var(--gain); }
+	.loss-text { color: var(--loss); }
+	.change-text { color: var(--loss); }	
+
+    /* Tick marks */
+    .ticks {
+      position: absolute;
+      inset: 0;
+    }
+
+    canvas#tickCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Hands */
+    .hands {
+      position: absolute;
+      inset: 0;
+    }
+
+    .hand {
+      position: absolute;
+      bottom: 50%;
+      left: 50%;
+      transform-origin: bottom center;
+      border-radius: 4px 4px 0 0;
+    }
+
+    .hand-hour {
+      width: 3px;
+      height: 68px;
+      margin-left: -1.5px;
+      background: linear-gradient(to top, var(--glow), rgba(0,240,255,0.4));
+      box-shadow: 0 0 8px var(--glow), 0 0 20px rgba(0,240,255,0.3);
+    }
+
+    .hand-min {
+      width: 2px;
+      height: 90px;
+      margin-left: -1px;
+      background: linear-gradient(to top, #fff, rgba(255,255,255,0.5));
+      box-shadow: 0 0 6px rgba(255,255,255,0.6);
+    }
+
+    .hand-sec {
+      width: 1px;
+      height: 100px;
+      margin-left: -0.5px;
+      background: var(--glow2);
+      box-shadow: 0 0 6px var(--glow2), 0 0 16px rgba(255,45,120,0.4);
+    }
+
+    /* Center dot */
+    .center-dot {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--glow2);
+      box-shadow: 0 0 12px var(--glow2), 0 0 24px rgba(255,45,120,0.5);
+      z-index: 10;
+    }
+
+    /* Digital display */
+    .digital-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .time-display {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .digit-group {
+      display: flex;
+      gap: 2px;
+    }
+
+    .digit {
+      background: var(--panel);
+      border: 1px solid rgba(0,240,255,0.12);
+      color: var(--glow);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 32px;
+      line-height: 1;
+      width: 36px;
+      text-align: center;
+      padding: 6px 0 4px;
+      border-radius: 4px;
+      position: relative;
+      overflow: hidden;
+      text-shadow: 0 0 20px var(--glow), 0 0 40px rgba(0,240,255,0.3);
+      box-shadow: inset 0 0 20px rgba(0,240,255,0.04);
+      transition: color 0.08s;
+    }
+
+    .digit::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0;
+      top: 50%; height: 1px;
+      background: rgba(0,240,255,0.06);
+    }
+
+    .separator {
+      font-size: 32px;
+      color: var(--glow);
+      opacity: 0.4;
+      line-height: 1;
+      padding-bottom: 6px;
+      animation: blink 1s step-end infinite;
+      text-shadow: 0 0 20px var(--glow);
+    }
+
+    @keyframes blink { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.1; } }
+
+    .ampm {
+      font-size: 16px;
+      color: var(--glow2);
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px var(--glow2);
+      align-self: flex-end;
+      padding-bottom: 10px;
+    }
+
+    /* Date row */
+    .date-row {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .date-chip {
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: rgba(0,240,255,0.5);
+      text-transform: uppercase;
+    }
+
+    .date-dot {
+      width: 3px; height: 3px;
+      border-radius: 50%;
+      background: var(--glow2);
+      opacity: 0.6;
+    }
+
+
+
+    /* Scanline overlay */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.08) 2px,
+        rgba(0,0,0,0.08) 4px
+      );
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* Fade in */
+    .clock-wrapper {
+      animation: fadeUp 1s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Chime toggle button */
+    .chime-btn {
+      position: fixed;
+      top: 20px;
+      right: 24px;
+      background: var(--panel);
+      border: 1px solid rgba(0,240,255,0.2);
+      border-radius: 6px;
+      color: var(--glow);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 20px;
+      letter-spacing: 2px;
+      padding: 8px 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 200;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      user-select: none;
+    }
+    .chime-btn:hover {
+      border-color: rgba(0,240,255,0.5);
+      box-shadow: 0 0 14px rgba(0,240,255,0.15);
+    }
+    .chime-btn.muted {
+      color: rgba(0,240,255,0.3);
+      border-color: rgba(0,240,255,0.08);
+    }
+    .chime-btn .icon {
+	 font-size: 24px;    
+	}
+
+    /* Chime toast notification */
+    .chime-toast {
+      position: fixed;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-80px);
+      background: var(--panel);
+      border: 1px solid rgba(0,240,255,0.3);
+      border-radius: 6px;
+      padding: 10px 24px;
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: var(--glow);
+      text-transform: uppercase;
+      box-shadow: 0 0 30px rgba(0,240,255,0.15);
+      z-index: 300;
+      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.4s;
+      opacity: 0;
+      white-space: nowrap;
+    }
+    .chime-toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* Full-screen flash on chime */
+    .chime-flash {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,240,255,0.06);
+      pointer-events: none;
+      z-index: 150;
+      opacity: 0;
+      transition: opacity 0.1s;
+    }
+    .chime-flash.active {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div><a href="hotstock.htm"><img src="img/home.png" /></a>&nbsp;&nbsp;</div>	
+  <!-- Chime flash overlay -->
+  <div class="chime-flash" id="chimeFlash"></div>
+
+  <!-- Chime toast -->
+  <div class="chime-toast" id="chimeToast">⬡ On the Hour</div>
+
+  <!-- Mute toggle -->
+   <div class="stats-grid">
+		<div class="stat-card">
+			<div class="stat-label label-text">
+				<select id="s01" class="custom-select1">
+					<option value="8">8</option>
+					<option value="9">9</option>
+					<option value="10">10</option>
+					<option value="11">11</option>
+					<option value="12">12</option>
+					<option value="13" selected>13</option>
+					<option value="14">14</option>
+					<option value="15">15</option>
+					<option value="16">16</option>				
+					<option value="17">17</option>
+					<option value="18">18</option>
+					<option value="19">19</option>
+					<option value="20">20</option>
+					<option value="21">21</option>
+					<option value="22">22</option>
+					<option value="23">23</option>		
+				</select>
+			</div>
+			<div class="stat-label label-text">時</div>
+		</div>
+		<div class="stat-card">
+			<div class="stat-label label-text"">
+				<select id="s02" class="custom-select2">
+					<option value="00">0</option>
+					<option value="10">10</option>
+					<option value="20">20</option>
+					<option value="21">21</option>
+					<option value="22">22</option>
+					<option value="23">23</option>
+					<option value="24">24</option>
+					<option value="25">25</option>
+					<option value="26">26</option>
+					<option value="27">27</option>
+					<option value="28">28</option>
+					<option value="29" selected>29</option>					
+					<option value="30">30</option>
+					<option value="35">35</option>
+					<option value="40">40</option>
+					<option value="45">45</option>
+					<option value="50">50</option>
+					<option value="55">55</option>
+				</select>
+			</div>
+			<div class="stat-label label-text">分</div>
+		</div>
+		<div class="stat-card">
+			<div class="stat-label label-text">
+				<select id="s03" class="custom-select3">
+					<option value="00" selected>0</option>
+					<option value="05">5</option>
+					<option value="10">10</option>
+					<option value="15">15</option>
+					<option value="20">20</option>
+					<option value="25">25</option>
+					<option value="30">30</option>
+					<option value="35">35</option>
+					<option value="40">40</option>
+					<option value="45">45</option>
+					<option value="50">50</option>
+					<option value="55">55</option>
+				</select>
+			</div>
+			<div class="stat-label label-text">秒</div>
+		</div>
+		<div class="stat-card">
+			<div>
+				<button class="custom-btn" id="toggleBtn">
+					<i class="ti ti-player-pause" id="icon" style="font-size:10px"></i>
+					<span id="label">啟動鬧鈴設定</span>
+				</button>
+			</div>
+		</div>
+  </div>
+
+  <button class="chime-btn" id="chimeBtn" title="Toggle hourly chime">
+    <span class="icon" id="chimeIcon">🔔</span>
+    <span id="chimeLbl">CHIME ON</span>
+  </button>
+
+  <div class="clock-wrapper">
+
+    <!-- Analog -->
+    <div class="analog-wrap">
+      <div class="ring-outer"></div>
+      <canvas id="tickCanvas" width="240" height="240"></canvas>
+      <div class="hands">
+        <div class="hand hand-hour" id="handHour"></div>
+        <div class="hand hand-min"  id="handMin"></div>
+        <div class="hand hand-sec"  id="handSec"></div>
+      </div>
+      <div class="center-dot"></div>
+    </div>
+
+    <!-- Digital -->
+    <div class="digital-block">
+      <div class="time-display">
+        <div class="digit-group">
+          <div class="digit" id="h1">0</div>
+          <div class="digit" id="h2">0</div>
+        </div>
+        <div class="separator">:</div>
+        <div class="digit-group">
+          <div class="digit" id="m1">0</div>
+          <div class="digit" id="m2">0</div>
+        </div>
+        <div class="separator">:</div>
+        <div class="digit-group">
+          <div class="digit" id="s1">0</div>
+          <div class="digit" id="s2">0</div>
+        </div>
+        <div class="ampm" id="ampm">AM</div>
+      </div>
+
+      <div class="date-row">
+        <div class="date-chip" id="dayName">Monday</div>
+        <div class="date-dot"></div>
+        <div class="date-chip" id="dateStr">01 Jan 2025</div>
+      </div>
+    </div>
+
+
+
+  </div>
+
+  <script>
+    // Draw tick marks on canvas
+    const canvas = document.getElementById('tickCanvas');
+    const ctx = canvas.getContext('2d');
+    const cx = 120, cy = 120, R = 108;
+	let running=false , STARTtime="17:59:00";
+
+    function drawTicks() {
+      ctx.clearRect(0, 0, 240, 240);
+      for (let i = 0; i < 60; i++) {
+        const angle = (i / 60) * Math.PI * 2 - Math.PI / 2;
+        const isMajor = i % 5 === 0;
+        const inner = R - (isMajor ? 14 : 6);
+        const outer = R;
+        const x1 = cx + Math.cos(angle) * inner;
+        const y1 = cy + Math.sin(angle) * inner;
+        const x2 = cx + Math.cos(angle) * outer;
+        const y2 = cy + Math.sin(angle) * outer;
+
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.strokeStyle = isMajor ? 'rgba(0,240,255,0.5)' : 'rgba(0,240,255,0.18)';
+        ctx.lineWidth = isMajor ? 2 : 1;
+        ctx.stroke();
+      }
+
+      // Hour numbers
+      ctx.font = '700 10px "Share Tech Mono"';
+      ctx.fillStyle = 'rgba(0,240,255,0.45)';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      for (let h = 1; h <= 12; h++) {
+        const angle = (h / 12) * Math.PI * 2 - Math.PI / 2;
+        const nr = R - 26;
+        ctx.fillText(h, cx + Math.cos(angle) * nr, cy + Math.sin(angle) * nr);
+      }
+    }
+    drawTicks();
+
+    // Clock update
+    const handH = document.getElementById('handHour');
+    const handM = document.getElementById('handMin');
+    const handS = document.getElementById('handSec');
+    const ampmEl = document.getElementById('ampm');
+    const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    function pad(n) { return String(n).padStart(2,'0'); }
+
+    function setDigit(id, val) {
+      const el = document.getElementById(id);
+      if (el.textContent !== val) el.textContent = val;
+    }
+
+    function update() {
+      const now = new Date();
+      const h = now.getHours();
+      const m = now.getMinutes();
+      const s = now.getSeconds();
+      const ms = now.getMilliseconds();
+
+      // Analog smooth
+      const secDeg  = (s + ms / 1000) * 6;
+      const minDeg  = m * 6 + s * 0.1;
+      const hourDeg = (h % 12) * 30 + m * 0.5;
+
+      handH.style.transform = `rotate(${hourDeg}deg)`;
+      handM.style.transform = `rotate(${minDeg}deg)`;
+      handS.style.transform = `rotate(${secDeg}deg)`;
+
+      // Digital
+      const h12 = h % 12 || 12;
+      const hStr = pad(h12);
+      const mStr = pad(m);
+      const sStr = pad(s);
+
+      setDigit('h1', hStr[0]);
+      setDigit('h2', hStr[1]);
+      setDigit('m1', mStr[0]);
+      setDigit('m2', mStr[1]);
+      setDigit('s1', sStr[0]);
+      setDigit('s2', sStr[1]);
+      ampmEl.textContent = h < 12 ? 'AM' : 'PM';
+
+      // Date
+      document.getElementById('dayName').textContent = days[now.getDay()];
+      document.getElementById('dateStr').textContent =
+        `${pad(now.getDate())} ${months[now.getMonth()]} ${now.getFullYear()}`;
+
+
+    }
+
+    update();
+    setInterval(update, 50);
+
+    // ── Hourly Chime ──────────────────────────────────────────────
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+    let chimeMuted = false;
+    let lastChimeHour = -1;
+
+    function getAudioCtx() {
+      if (!audioCtx) audioCtx = new AudioCtx();
+      return audioCtx;
+    }
+
+    // Synthesize a bell-like chime using Web Audio
+    function playChime(times) {
+      const ctx = getAudioCtx();
+      // Notes for a pleasing ascending chord: C5, E5, G5, C6
+      const notes = [523.25, 659.25, 783.99, 1046.5];
+      const count = Math.min(times, 12);
+
+      for (let i = 0; i < count; i++) {
+        const delay = i * 0.72;
+        notes.forEach((freq, ni) => {
+          const t = ctx.currentTime + delay + ni * 0.11;
+          // Oscillator (bell tone)
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, t);
+          gain.gain.setValueAtTime(0, t);
+          gain.gain.linearRampToValueAtTime(0.18, t + 0.01);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t + 1.6);
+          osc.start(t);
+          osc.stop(t + 1.8);
+
+          // Subtle harmonic overtone
+          const osc2 = ctx.createOscillator();
+          const gain2 = ctx.createGain();
+          osc2.connect(gain2);
+          gain2.connect(ctx.destination);
+          osc2.type = 'sine';
+          osc2.frequency.setValueAtTime(freq * 2.756, t);
+          gain2.gain.setValueAtTime(0, t);
+          gain2.gain.linearRampToValueAtTime(0.05, t + 0.01);
+          gain2.gain.exponentialRampToValueAtTime(0.0001, t + 0.8);
+          osc2.start(t);
+          osc2.stop(t + 1.0);
+        });
+      }
+    }
+
+	  /* button handler 
+	function toggle() {
+		document.getElementById('icon').className   = spinning ? 'ti ti-player-pause' : 'ti ti-player-play';
+		// document.getElementById('label').textContent = spinning ? 'Stop'      : 'Resume';
+		// document.getElementById('stxt').textContent  = spinning ? 'Rotating'           : 'Stopped';
+	  }
+	  */
+  
+    function triggerChime(hour) {
+      if (chimeMuted) return;
+      const h12 = hour % 12 || 12;
+      playChime(h12);
+      // Visual flash
+      const flash = document.getElementById('chimeFlash');
+      flash.classList.add('active');
+      setTimeout(() => flash.classList.remove('active'), 300);
+      // Toast
+      const toast = document.getElementById('chimeToast');
+      toast.textContent = `⬡ ${h12 < 10 ? '0'+h12 : h12}:00 — ${hour < 12 ? 'AM' : 'PM'}`;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
+    // Check for top-of-hour (runs inside the existing update loop via a separate interval)
+    setInterval(() => {
+	 // const STARTtime = "23:30:00"; 
+	 const [h1, m1, s1] = STARTtime.split(':').map(Number);
+	 const ENDtime = "23:30:00"; 
+	 const [h2, m2, s2] = ENDtime.split(':').map(Number);
+	 const STARTtimeToSeconds= h1 * 3600 + m1 * 60 + s1 ;
+	 const ENDtimeToSeconds= h2 * 3600 + m2 * 60 + s2 ;	 
+	 const now = new Date();
+	 const nowSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();	
+	 if ( nowSeconds < STARTtimeToSeconds  || running) 
+		return
+	 else 	
+		running=true;
+	 triggerChime(5);
+	 running=false ;	 
+    }, 7000);
+
+    // Mute toggle button
+	
+	document.getElementById('toggleBtn').addEventListener('click', () => {
+      const s1 = document.getElementById('s01').value;
+      const s2 = document.getElementById('s02').value;
+      const s3  = document.getElementById('s03').value;
+      STARTtime=s1+":"+s2+ ":" +s3
+	  console.log(111,STARTtime);	
+    });
+	
+    document.getElementById('chimeBtn').addEventListener('click', () => {
+      // Unlock AudioContext on first user interaction
+      getAudioCtx().resume();
+      chimeMuted = !chimeMuted;
+      const btn = document.getElementById('chimeBtn');
+      const icon = document.getElementById('chimeIcon');
+      const lbl  = document.getElementById('chimeLbl');
+      btn.classList.toggle('muted', chimeMuted);
+      icon.textContent = chimeMuted ? '🔕' : '🔔';
+      lbl.textContent  = chimeMuted ? 'CHIME OFF' : 'CHIME ON';
+    });
+
+    // Preview chime on page load after a short delay (unlocks audio context too)
+    // Plays a single soft preview chime so users know it's working
+    window.addEventListener('click', function unlockAudio() {
+      getAudioCtx().resume();
+      window.removeEventListener('click', unlockAudio);
+    }, { once: true });
+  </script>
+</body>
+</html>

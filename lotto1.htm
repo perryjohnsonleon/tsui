@@ -1,0 +1,192 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <title></title>
+        <meta http-equiv="content-type" content="text/html;charset=utf-8" />	
+        <script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+        <!-- Bootstrap icons-->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="css/styles.css" rel="stylesheet" />
+    </head>
+
+<body>
+<!-- button id="myButton" onclick="alert('OK!')">按鈕</button -->
+    <main class="flex-shrink-0">
+    <div class="my-5 text-center text-xl-start">
+    <table style="width:95%">
+    <tr>
+    <td style="width:100%">
+      <div id="hiddenMsg1">
+      </div>	  
+      <div id="hiddenElement1">
+
+      </div>
+    </td>  
+    </table>
+</div>
+ </main>
+ <script>
+  let show_lotto39Rpt="" ;
+    function step1(stockNo) {
+        return new Promise((resolve) => {
+        setTimeout(() => {
+			// Step1 URL Begin
+			   $("#hiddenMsg1").html("<span>Wait data ...<span>"); 
+			   if (mask_item1.style.display == "none" )
+				   hiddenMsg1.style.display = "block" ;
+				   var urlStr= "https://marketinfo.api.cnyes.com/mi/api/v1/financialIndicator/revenue/TWS:" + stockNo + ":STOCK?year=5&to=1572364800";
+                $.getJSON(urlStr,function(data){
+                  $.each(data,function(key1,item1){
+                     if (key1 === 'data') {
+                   	   //  $('ul').append('<li>'+item1+'</li>');
+                        var itemData = item1[0]; 							
+                        $.each(itemData,function(key2,item2){
+						   if (key2  === 'name' ) {
+                             itemYear_stockname = item2 ;
+							 console.log(itemYear_stockname);
+                            }								
+                    	   if (key2  === 'revenue' ) {
+							    itemYear_arry2= item2 ;
+                    		    var itemData2 = item2;
+                    		    var itemDataTemp ;
+                    		   // YearRevenue - starting
+                    		  $.each(itemData2,function(key3,item3){
+								  //  console.log(item3) ;             
+                 	              //   itemDataTemp = item3 ;
+                                    /*            					     
+									 $.each(itemDataTemp,function(i,val) {
+                                         console.log ( i + val );
+                                       });
+                                     */
+                                 }) ; 
+                    		    // YearRevenue - Ending  
+ 		                         		              		
+                    	}  //  ***************************************
+                    	   if (key2  === 'revenueYOY' ) {
+							   	itemYear_arry3= item2;
+                    		    var itemData2 = item2;
+                    		    var itemDataTemp ;
+                    		   // YOY - starting
+                    		  $.each(itemData2,function(key3,item3){
+								  // console.log(item3) ;             
+                                    /*            					     
+									 $.each(itemDataTemp,function(i,val) {
+                                         console.log ( i + val );
+                                       });
+                                     */
+                                 }) ; 
+                    		    // YOY - Ending              		              		
+                    	}  //  ***************************************						
+                    	   if (key2  === 'time' ) {
+							  itemYear_arry1= item2 ;		
+                    	}  //  ***************************************							
+
+                      });               
+                  }
+                 });
+                });		
+			// Step1 URL End
+           // console.log("Step 1 完成");
+           resolve("Step 1 結果");
+        }, 700);
+       });
+   }
+
+   function step2() {
+        return new Promise((resolve) => {
+        setTimeout(() => {		 
+			 tr_line ="",show_YearRpt="" ;
+			 var item2comma=0 ;
+             for (let i = 0; i < itemYear_arry1.length; i++) {
+				 item2comma = (itemYear_arry2[i]/1000) + "" ;
+				 item2comma = item2comma.replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
+				 tr_line = tr_line + '<tr><td>' + timestampToTime(itemYear_arry1[i]) + '</td><td>' + item2comma + '</td><td>' +　itemYear_arry3[i]　+'</td></tr>' ;
+			 } ;
+            // console.log("Pass3:" + tr_line) ;
+           // console.log("Step 2 完成");
+           resolve("Step 2 結果");
+        }, 500);
+      });
+   }
+
+   function step3() {
+        return new Promise((resolve) => {
+        setTimeout(() => {						 
+		show_YearRpt='<table width="30%" style="color: rgb(132, 141, 151); font-size: 14px; text-align: right;">' + '<thead><tr><td style="width:40%">[' + itemYear_stockname + ']月財報</td><td style="width:40%">營收(千元)</td><td style="width:20%">年增率</td></thead><tbody>' + tr_line  + '</tbody></table>'  ;
+         // console.log("Step 3 完成");
+         resolve("Step 3 結果");
+        }, 250);
+    });
+   }
+   
+   function step4() {
+        return new Promise((resolve) => {
+        setTimeout(() => {
+            $("#hiddenElement1").html(show_YearRpt); 
+			if (mask_item1.style.display == "none" )
+			   {
+				 hiddenMsg1.style.display = "none" ; 
+                 mask_item1.style.display = "block"  // Change display to block to make it visible
+               }
+			else
+      		     mask_item1.style.display = "none" ;
+
+         // console.log("Step 4 完成");
+         resolve("Step 4 結果");
+        }, 10);
+    });
+   }
+
+   // 使用 then 來串接 Promise，依序執行
+   // ==========================
+   
+  step1()
+      .then(result1 => {
+        console.log(result1); // Step 1 結果
+        return step2();        // 等 step2 完成後才進行下一步
+       })
+      .then(result2 => {
+        console.log(result2);  // Step 2 結果
+        return step3();        // 等 step3 完成後才進行下一步
+       })
+      .then(result3 => {
+        console.log(result3);  // Step 3 結果
+        console.log("所有步驟完成");
+      })
+      .catch(error => {
+        console.log("出現錯誤: ", error);
+   });
+	  
+  async function executeStepsSequentially(stockNo) {
+       try {
+          let result1 = await step1(stockNo);
+        // console.log(result1); // Step 1 結果
+
+          let result2 = await step2();
+        // console.log(result2); // Step 2 結果
+
+          let result3 = await step3();
+        // console.log(result3); // Step 3 結果
+        
+          let result4 = await step4() ; 
+
+        // console.log(result4); // Step 4 結果 
+
+        // console.log("所有步驟完成");
+       } catch (error) {
+          console.log("出現錯誤: ", error);
+      }
+   }
+	 
+  executeStepsSequentially(stockNo); 
+  console.log ('pass 0!')
+  /*
+   move from here !
+  */
+  console.log ('pass 99!') ;
+</script>
+</body>
+</html>

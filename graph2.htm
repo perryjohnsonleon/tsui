@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <!-- script type="text/javascript" src="js/jquery-3.2.1.min.js"></script -->
+  <script src="js/chart.js"></script>
+  <script>
+  let stockId_list=['2330','1504','2371','2324','2317','2002','2027','1402','1301','1102','1101','1210','2347','8150','5410','4938'] ; // 台積電(2330), 東元(1504) 鴻海(2317) , 亞泥(1102) , 聯發科(2454), 大成鋼(2027) , 京元電(2449)  聯強(2347) , 台泥(1101) , 大同(2371) , 中鋼(2002)
+  let stockId=0 ;
+ async function getPost() {
+  try {
+   let itemPrice_matrix="" ;
+   let oldCanvas = document.getElementById("myChart");
+   if (oldCanvas) {
+	  stockId += 1 ;
+	  oldCanvas.outerHTML = "<canvas id='myChart' width='750' height='400'></canvas>" ;
+  }
+    let fetchUrl_str1="https://ws.api.cnyes.com/ws/api/v1/charting/history?resolution=1&symbol=TWS:" , fetchUrl_str2=":STOCK&quote=1"   ;
+    let fetchUrl_str=fetchUrl_str1 + stockId_list[stockId] + fetchUrl_str2 ;
+	console.log(fetchUrl_str);
+    const response = await fetch(fetchUrl_str);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const post = await response.json(); // Convert response to JS object
+    return post;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    return null;
+  }
+}
+
+async function displayPost() {
+  if (stockId > 15) stockId = 1 ;
+  const post = await getPost();
+  let itemPrice_name = "" ;
+  let xValues_str="0";
+  if (post) {
+    const itemPrice_arry = post.data.c;
+	const quote_obj = post.data.quote ;
+	for ( var n in quote_obj) {
+	   if ( n == "200009" ) itemPrice_name= quote_obj[n] ;
+	}
+	itemPrice_matrix =[...itemPrice_arry].reverse() ;	
+	const xValues_matrix= Array.from({ length: itemPrice_matrix.length }, (_, index) => index + 1);
+	const xValues = xValues_matrix;
+    let original = itemPrice_matrix ;
+	let yValues = original.map(n => n );
+    let points = yValues.map((y, i) => ({ x: xValues[i], y }));
+    var graph=new Chart(document.getElementById('myChart'), {
+      type: 'line',
+      data: {
+        datasets: [{
+          label: itemPrice_name,
+          data: points,
+          borderColor: 'blue',
+          cubicInterpolationMode: 'monotone',
+          tension: 0.4,
+          backgroundColor: 'rgba(0,0,255,0.2)',
+        }]
+      },
+      options: {
+        scales: {
+          x: {
+            type: 'linear', // 指定為數值型 x 軸
+            title: { display: true, text: 'X 軸（數值）' },
+          },
+          y: {
+            beginAtZero: false,
+            title: { display: true, text: 'Y 軸（數值）' },
+          }
+        }
+      }
+    });
+   }
+  }   
+  </script>
+
+
+ 
+</head>
+<body>
+<div style="display:flex;">
+<div><canvas id="myChart" width="750" height="400"></canvas></div>
+<div>
+<div><button onclick="displayPost(2330);" style="padding:10px,30px ;">台積電</button></div>
+<div><button onclick="displayPost(1504);" style="padding:10px,30px ;">東元</button></div>
+<div><button onclick="displayPost(2371);" style="padding:10px,30px ;">大同</button></div>
+<div><button onclick="displayPost(2324);" style="padding:10px,30px ;">TEST</button></div>
+<div><button onclick="displayPost(2317);" style="padding:10px,30px ;">鴻海</button></div>
+<div><button onclick="displayPost(2002);" style="padding:10px,30px ;">TEST</button></div>
+<div><button onclick="displayPost(2027);" style="padding:10px,30px ;">TEST</button></div>
+<div><button onclick="displayPost(1402);" style="padding:10px,30px ;">TEST</button></div>
+<div><button onclick="displayPost(1301);" style="padding:10px,30px ;">TEST</button></div>
+<div><button onclick="displayPost(1102);" style="padding:10px,30px ;">TEST</button></div>
+<div><button onclick="displayPost(1101);" style="padding:10px,30px ;">TEST</button></div>
+<div><button onclick="displayPost(1210);" style="padding:10px,30px ;">TEST</button></div>
+<div><button onclick="displayPost(2347);" style="padding:10px,30px ;">TEST</button></div>
+<div><button onclick="displayPost(8150);" style="padding:10px,30px ;">TEST</button></div>
+<div><button onclick="displayPost(5410);" style="padding:10px,30px ;">TEST</button></div>
+<div><button onclick="displayPost(4938);" style="padding:10px,30px ;">TEST</button></div>
+<div><button onclick="displayPost(3706);" style="padding:10px,30px ;">TEST</button></div>
+<div><button onclick="displayPost(2449);" style="padding:10px,30px ;">TEST</button></div>
+
+
+</div>
+</div>
+<script>
+displayPost();
+</script>
+</body>
+</html>

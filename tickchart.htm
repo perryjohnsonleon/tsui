@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />	
+<title>個股vs.大盤分時走勢圖</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="css/tickchart.css" rel="stylesheet" />
+<!-- Chart.js -->
+</head>
+<body>
+			<!-- 外部程式 begin -->
+			<div class="wrapper">
+			  <!-- Ticker Header -->
+			  <div class="ticker-header">
+				<div class="ticker-left">
+				  <div class="ticker-symbol" id="sym"></div>
+				  <div class="ticker-price-row">
+					<div class="current-price" id="mainPrice">—</div>
+					<div class="price-change gain" id="priceChange">
+					  <span class="change-val" id="changeVal">—</span>
+					  <span class="change-pct" id="changePct">—</span>
+					</div>
+				  </div>
+				  <div>
+					<select id="s01">
+							<option value="0" selected>請選擇</option>					
+							<option value="2353">宏碁</option>
+							<option value="2356">英業達</option>
+							<option value="2357">華碩</option>
+							<option value="2324">仁寶</option>
+							<option value="2330">台積電</option>
+							<option value="2454">聯發科</option>
+							<option value="2308">台達電</option>
+							<option value="2317">鴻海</option>
+							<option value="2303">聯電</option>
+							<option value="2344">華邦電</option>
+							<option value="2408">南亞科</option>
+							<option value="6770">力積電</option>
+							<option value="2337">旺宏</option>
+							<option value="3532">台勝科</option>
+							<option value="1102">亞泥</option>
+							<option value="00403A">00403A</option>
+							<option value="00980A">00980A</option>
+							<option value="00981A">00981A</option>
+							<option value="00982A">00982A</option>
+							<option value="00991A">00991A</option>							
+							<option value="00992A">00992A</option>
+							<option value="0050">0050</option>
+							<option value="9999">停止</option>
+					</select>				  
+				  </div>
+				  <div><a href="hotstock.htm"><img src="img/home.png" /></a></div>
+				</div>
+			  </div>
+
+			  <!-- Chart -->
+			  <div class="chart-card">
+				<canvas id="mainChart"></canvas>
+			  </div>
+
+			  <!-- Stats -->
+			  <div class="stats-grid">
+				<div class="stat-card">
+				  <div class="stat-label">開盤價</div>
+				  <div class="stat-value" id="statOpen">—</div>
+				</div>
+				<div class="stat-card">
+				  <div class="stat-label">最高價</div>
+				  <div class="stat-value gain-text" id="statHigh">—</div>
+				</div>
+				<div class="stat-card">
+				  <div class="stat-label">最低價</div>
+				  <div class="stat-value loss-text" id="statLow">—</div>
+				</div>
+			  </div>
+
+			  <!-- Market Overview -->
+			  <div class="market-list" id="marketList"></div>
+			</div>			
+			<!-- 外部程式 end -->
+
+<script src="js/tickchart.js"></script>
+</body>
+</html>

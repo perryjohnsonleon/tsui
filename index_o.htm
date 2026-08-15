@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta http-equiv="content-type" content="text/html;charset=utf-8" />	
+        <title>大盤指數</title>
+		<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+		<style>
+		  body {
+			background: #000;   /* 黑色背景 */
+			color: #fff;
+		  }
+		  canvas {
+			max-width: 750px;
+			margin: 10px auto;
+			display: block;
+		  }
+		</style>
+    </head>
+    <body>
+    <div style="display:flex;">
+			<div><canvas id="realtimeChart" width="750" height="400"></canvas></div>
+			<div id="collapseBtn2" style="justify-content:center;"><img src='collapse.png' style='cursor:pointer;' onclick='collapseElement()' /></div>
+    </div>
+	<script src="js/chart.js"></script>	
+	<script src="js/chartjs-plugin-annotation.js"></script>	
+	<script src="js/scripts_o.js"></script>	
+  </body>
+</html>
