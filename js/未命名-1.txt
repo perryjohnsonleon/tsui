@@ -1,0 +1,28 @@
+<html>
+<head>
+  <title>innerHTML Example</title>
+</head>
+<body>
+  <div id="container">
+    <p>Hello <b>World</b></p>
+    <span>This will be cleared</span>
+  </div>
+
+  <button onclick="clearContent()">Clear Content</button>
+  <button onclick="stripTags()">Remove Tags Only</button>
+
+  <script>
+    // 1. Clear all inner content of the container
+    function clearContent() {
+      document.getElementById("container").innerHTML = "";
+    }
+
+    // 2. Remove HTML tags but keep inner text
+    function stripTags() {
+      let container = document.getElementById("container");
+      container.innerHTML = container.innerText; 
+      // Or: container.textContent
+    }
+  </script>
+</body>
+</html>
