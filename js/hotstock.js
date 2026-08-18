@@ -1,4 +1,4 @@
-	const list1=['2330','2454','2308','2317','2303','2356','2357','2353','1102','2324','2344','8299','2408','6770','2337','2347','2371','1504','2891','00403A','00991A','00982A','00980A','00981A','0050','0056'];
+	const list1=['2330','2454','2308','3008','2317','2303','2356','2357','2353','1102','2324','2344','8299','2408','6770','2337','2347','2371','1504','2891','00403A','00991A','00982A','00980A','00981A','0050','0056'];
 	const list2=['2330','2454','3661','3443','2303','2606','9940','3042','2603','1713','2609','0050','00878','006208','00713','00692','00881','00919','00940','00757','00982A','00983A','00984A','00985A','00992A'] ;
 	const list3=['2882','2887','2891','2881','2884','2883','2892','2886','2838','2885','2890','0050','00878','006208','00713','00692','00881','00919','00940','00757','00982A','00983A','00984A','00985A','00992A'];
 	const list4=['2603','2606','2605','2609','2610','2618','2615','2633','2645','2646','2634','0050','00878','006208','00713','00692','00881','00919','00940','00757','00982A','00983A','00984A','00985A','00992A'];
@@ -331,7 +331,6 @@
 					if ( n == "12" ) MAIN.high=quote_obj[n];
 					if ( n == "13" ) MAIN.low= quote_obj[n];
 				} 
-				// document.getElementById(elemId_2).innerHTML =  "<button id='" + btn2_expandId + "' onclick=\"window.location.href='http://127.0.0.1:8000/winder/tickchart.htm?stockId=" + stockId + "';\">" + elemId_price + "</button>";
 		   }
 		   // ================================
 			  const row = document.createElement('div');
@@ -353,7 +352,6 @@
 			  else if (MAIN.change < 0) pricebtn.classList.add('fellPrice');
 			  else pricebtn.classList.add('flatPrice');			  
 			  pricebtn.textContent = MAIN.price;
-			//  pricebtn.onclick = "window.location.href='http://127.0.0.1:8000/winder/tickchart.htm?stockId=" + stockId + "'";  
 			  pricebtn.onclick = () => showRealprice(stockId) ;  	 
 			  priceCell.appendChild(pricebtn);
 			  row.appendChild(priceCell);
@@ -549,7 +547,7 @@
     }
 	
 	async function alarmPrice(stockNo) {
-		window.location.href = 'https://perryjohnsonleon.github.io/tsui/testalarm.htm?stockid=' + stockNo ;
+		window.location.href = 'https://perryjohnsonleon.github.io/tsui/pricealarm.htm?stockid=' + stockNo ;
     }	
 	
 	async function countProfit(stockNo) {

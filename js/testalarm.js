@@ -475,7 +475,7 @@
   }
 
   /* ============ Boot ============ */
-   async function startShow(stockId) {;
+   async function startShow(stockId) {
 	await graphcardRender(stockId);
 	await resizeCanvas(stockId);
 	// await renderMain(stockId);
