@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+<title>台股分時走勢提示鈴系統</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="css/pricealarm.css" rel="stylesheet" />
+</head>
+<body>
+<div class="wrap">
+    <div class="id-block">
+	  <span><a href="hotstock.htm"><img src="img/home.png" /></a></span>
+      <span class="ticker" id="sym">—</span>
+    </div>
+    <div class="header-actions">
+      <button class="action-btn" id="alertBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span>價格警示</span>
+      </button>
+      <button class="action-btn" id="chimeBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+        <span id="chimeLabel">Chime on</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="hero">
+    <div class="price-main">
+      <div class="price-row">
+        <span class="price-value mono" id="priceValue">184.20</span>
+        <div class="day-stats">
+          <div class="day-stat">
+            <span class="lbl">開盤價</span>
+            <span class="val mono" id="dayOpen">0</span>
+          </div>
+          <div class="day-stat">
+            <span class="lbl">最高價</span>
+            <span class="val hi mono" id="dayHigh">0</span>
+          </div>
+          <div class="day-stat">
+            <span class="lbl">最低價</span>
+            <span class="val lo mono" id="dayLow">0</span>
+          </div>
+        </div>
+      </div>
+      <span class="change-badge mono" id="changeBadge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" id="changeArrow"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
+        <span id="changeText">0.00 (0.00%)</span>
+      </span>
+    </div>
+    <div class="alert-status">
+      <div class="alert-line" id="riseStatusLine" style="display:none;">
+        <span class="alert-armed-dot" id="riseArmedDot"></span>
+        <span>漲警示價：<span class="target-val" id="riseTargetDisplay">—</span></span>
+      </div>
+      <div class="alert-line" id="fallStatusLine" style="display:none;">
+        <span class="alert-armed-dot" id="fallArmedDot"></span>
+        <span>跌警示價：<span class="target-val" id="fallTargetDisplay">—</span></span>
+      </div>
+      <div class="alert-line" id="noAlertLine">No alert set</div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-head">
+      <span class="h">分時走勢圖</span>
+      <div class="chart-legend">
+        <span><span class="dot" style="background:var(--text-1);"></span>Price</span>
+        <span><span class="dot" style="background:var(--amber);border-top:2px dashed var(--amber);height:0;"></span>Open</span>
+      </div>
+    </div>
+    <canvas id="priceCanvas"></canvas>
+  </div>
+
+  <div class="gauge-card">
+    <div class="gauge-head">
+      <span class="h">到達目標價進度</span>
+    </div>
+
+    <div class="gauge-row" id="riseGaugeRow" style="display:none;">
+      <div class="gauge-row-head">
+        <span class="gauge-row-label rise">漲警示價：<span id="riseGaugeTargetLbl">—</span></span>
+        <span class="gauge-pct mono" id="riseGaugePct">0%</span>
+      </div>
+      <div class="gauge-track">
+        <div class="gauge-fill rise" id="riseGaugeFill"></div>
+        <div class="gauge-marker" id="riseGaugeMarker"></div>
+      </div>
+      <div class="gauge-labels">
+        <span>開盤價 <span class="val" id="riseGaugeOpen">184.20</span></span>
+        <span>現在價 <span class="val" id="riseGaugeCurrent">184.20</span></span>
+        <span>目標價 <span class="val" id="riseGaugeTargetVal">—</span></span>
+      </div>
+    </div>
+
+    <div class="gauge-row" id="fallGaugeRow" style="display:none;">
+      <div class="gauge-row-head">
+        <span class="gauge-row-label fall">跌警示價：<span id="fallGaugeTargetLbl">—</span></span>
+        <span class="gauge-pct mono" id="fallGaugePct">0%</span>
+      </div>
+      <div class="gauge-track">
+        <div class="gauge-fill" id="fallGaugeFill"></div>
+        <div class="gauge-marker" id="fallGaugeMarker"></div>
+      </div>
+      <div class="gauge-labels">
+        <span>開盤價 <span class="val" id="fallGaugeOpen">0</span></span>
+        <span>現在價 <span class="val" id="fallGaugeCurrent">0</span></span>
+        <span>目標價 <span class="val" id="fallGaugeTargetVal">—</span></span>
+      </div>
+    </div>
+
+    <p class="drawer-note" id="noGaugeMsg">未設定目標價</p>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="drawer">
+    <div class="drawer-head">
+      <h2>價格警示</h2>
+      <button class="close-btn" id="closeDrawer" aria-label="Close">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="alert-block rise">
+      <div class="alert-block-head">
+        <span class="alert-block-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
+          漲價警示
+        </span>
+        <label class="switch rise">
+          <input type="checkbox" id="riseEnabledInput">
+          <span class="track"><span class="thumb"></span></span>
+        </label>
+      </div>
+      <div>
+        <label class="field-label" for="riseTargetInput">目標價</label>
+        <input class="price-input mono" type="number" id="riseTargetInput" step="0.01" value="190.00">
+      </div>
+    </div>
+
+    <div class="alert-block fall">
+      <div class="alert-block-head">
+        <span class="alert-block-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+          跌價警示
+        </span>
+        <label class="switch fall">
+          <input type="checkbox" id="fallEnabledInput">
+          <span class="track"><span class="thumb"></span></span>
+        </label>
+      </div>
+      <div>
+        <label class="field-label" for="fallTargetInput">目標價</label>
+        <input class="price-input mono" type="number" id="fallTargetInput" step="0.01" value="178.00">
+      </div>
+    </div>
+
+    <button class="save-btn" id="saveAlert">儲存警示設定</button>
+    <p class="drawer-note">您可以單獨開啟其中一個警報，也可以同時開啟兩個警報。當股價按預期方向(漲勢或跌勢)到達目標時，會發出兩分鐘的鈴聲警報——上升時發出上升的正弦波鈴聲，下降時發出下降的三角波鈴聲。您可以透過標題列按鈕啟用(chime on)或關閉((chime off)鈴聲。</p>
+  </div>
+</div>
+<script src="js/pricealarm.js"></script>
+</body>
+</html>
