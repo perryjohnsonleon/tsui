@@ -45,6 +45,12 @@ canvas {
   border: none;
  }	
 
+ .clock {
+  font-size:22px;
+  position:relative;
+  top:-4px;
+ }
+
  .btn-expand1 {
   margin:0px;
   border:0px;
