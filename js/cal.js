@@ -3,7 +3,7 @@
   const qtyInput = $('qty');
   const unitLotBtn = $('unitLot');
   const unitShareBtn = $('unitShare');
-  let unitMode = 'lot'; // 'lot' | 'share'
+  let unitMode = 'lot' , tick , isETF ; // 'lot' | 'share' 
   const dirLongBtn = $('dirLong');
   const dirShortBtn = $('dirShort');
   const anchorLabel = $('anchorField').querySelector('label');
@@ -11,10 +11,27 @@
  window.addEventListener('load',function(){
 	const url=window.location.search;
 	// stockId = url.substring(url.indexOf('=') + 1);
-	const stockId = url.substring(9);
+	const stockId = url.substring(9); 
+	// isETF = stockId.at(-1) === 'A' ? true : false ;
+	if (stockId.slice(0,2) === '00') {isETF = true} else {isETF = false} ;  
 	startShow(stockId);
   }); 
 
+ function getTick(price) {
+    if (price < 5) {
+        return 0.01;
+    } else if (price < 15) {
+        return 0.05;
+    } else if (price < 50) {
+        return 0.10;
+    } else if (price < 150) {
+        return 0.50;
+    } else if (price < 1000) {
+        return 1;
+    } else {
+        return 5;
+    }
+}
 
 
   function updateDirectionUI(){
@@ -169,7 +186,7 @@
 	 }
 
  async function initialRender(stockId) {
-	  let itemName,incdecPrice,itemPrice,incdectxtPrice,highPrice,lowPrice,flatPrice,midPrice;
+	  let itemName,incdecPrice,itemPrice,incdectxtPrice,highPrice,lowPrice,flatPrice,midPrice,tick;
 	  const post = await getData(stockId);
 	  if (post) {		  
 			const wi_o=post.data.o;
@@ -185,8 +202,33 @@
 			   if ( n == "11" ) incdecPrice=quote_obj[n] ;
 			   if ( n == "12" ) highPrice=quote_obj[n] ;
 			   if ( n == "13" ) lowPrice=quote_obj[n] ;
-			   if ( n == "6" ) $('buyPrice').value=quote_obj[n] ;
+			   if ( n == "6" ) {
+				    itemPrice=quote_obj[n] ;
+			   }   
 			}
+			$('buyPrice').value=itemPrice ;
+			if (isETF == false) { 
+				if (itemPrice < 5) {
+					tick=0.01;
+				} else if (itemPrice < 15) {
+					tick=0.05;
+				} else if (itemPrice < 50) {
+					tick=0.10;
+				} else if (itemPrice < 150) {
+					tick=0.50;
+				} else if (itemPrice < 1000) {
+					tick=1;
+				} else {
+					tick=5;
+				}
+			}	
+			if (isETF == true) { 
+				if (itemPrice < 50) {
+					tick=0.01;
+				} else 
+					tick=0.05;
+			}				
+			$('priceStep').value=tick ;
 		}
    }  
 
