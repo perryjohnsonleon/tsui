@@ -99,7 +99,8 @@
     x: pad.left + i * xStep,
     y: pad.top + (max - data[i]) * yScale
   });
-  const isGain = data[data.length - 1] >= data[0];
+  // const isGain = data[data.length - 1] >= data[0];
+  const isGain = state.main.change >=0 ? true : false ;
   const lineColor = isGain ? '#ff1744' : '#00e676';
   const fillColor = isGain ? 'rgba(255,23,68,' : 'rgba(0,230,118,';
   // Area fill

@@ -6,6 +6,7 @@
     price: 0,
     open: 0,
 	change: 0,
+	flat: 0,
     dayHigh: 0,
     dayLow: 0,
     history: [],
@@ -318,6 +319,7 @@
 			state.fall.target= midPrice*0.9 ;			
 		    state.sym=itemName;
 		    state.price=itemPrice ;
+			state.flat=midPrice ;
 		    state.open=wi_oo[0] ;
 		    state.history=[...wi_c].reverse();
 		    state.dayHigh=highPrice ;
@@ -449,7 +451,7 @@
       ctx2d.stroke();
     }
 
-    var openY = yFor(state.open);
+    var openY = yFor(state.flat);
     ctx2d.save();
     ctx2d.setLineDash([5, 5]);
     ctx2d.strokeStyle = '#FFB020';
@@ -463,11 +465,11 @@
     ctx2d.fillStyle = '#FFB020';
     ctx2d.font = '10.5px JetBrains Mono, monospace';
     ctx2d.textBaseline = 'bottom';
-    ctx2d.fillText('OPEN ' + state.open.toFixed(2), padLeft + 4, openY - 3);
+    ctx2d.fillText('平盤：' + state.flat.toFixed(2), padLeft + 4, openY - 3);
 
-    var lineColor = state.price >= state.open ? '#FF4757' : '#2ED573';
-    var fillColorTop = state.price >= state.open ? 'rgba(255,71,87,0.20)' : 'rgba(46,213,115,0.20)';
-    var fillColorBottom = state.price >= state.open ? 'rgba(255,71,87,0.0)' : 'rgba(46,213,115,0.0)';
+    var lineColor = state.price >= state.flat ? '#FF4757' : '#2ED573';
+    var fillColorTop = state.price >= state.flat ? 'rgba(255,71,87,0.20)' : 'rgba(46,213,115,0.20)';
+    var fillColorBottom = state.price >= state.flat ? 'rgba(255,71,87,0.0)' : 'rgba(46,213,115,0.0)';
 
     var grad = ctx2d.createLinearGradient(0, padTop, 0, padTop + plotH);
     grad.addColorStop(0, fillColorTop);
