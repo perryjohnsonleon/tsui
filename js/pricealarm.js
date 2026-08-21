@@ -10,8 +10,8 @@
     dayHigh: 0,
     dayLow: 0,
     history: [],
-    rise: { enabled: true, target: 10.00, prevHit: false },
-    fall: { enabled: false, target: 10.00, prevHit: false },
+    rise: { enabled: true, target: 10.00, target0: 10.00 , prevHit: false },
+    fall: { enabled: false, target: 10.00, target0: 10.00 , prevHit: false },
     chimeOn: true,
     ring: {
       rise: { ringing: false, endAt: 0, timer: null },
@@ -253,10 +253,12 @@
     noAlertLine.style.display = (!state.rise.enabled && !state.fall.enabled) ? 'flex' : 'none';
 
     if (state.rise.enabled){
+	  state.rise.target0 = state.rise.target.toFixed(2) ;
       riseTargetDisplay.textContent = '$' + state.rise.target.toFixed(2);
       riseArmedDot.className = 'alert-armed-dot ' + (state.rise.prevHit ? 'fired' : 'armed');
     }
     if (state.fall.enabled){
+	  state.fall.target0 = state.fall.target.toFixed(2) ;		
       fallTargetDisplay.textContent = '$' + state.fall.target.toFixed(2);
       fallArmedDot.className = 'alert-armed-dot ' + (state.fall.prevHit ? 'fired' : 'armed');
     }
@@ -387,7 +389,7 @@
 
   function checkAlert(){
     if (state.rise.enabled){
-      var riseHit = state.price >= state.rise.target;
+      var riseHit = state.price >= state.rise.target0 ? true : false ;	   	  
       if (riseHit && !state.rise.prevHit){
         if (state.chimeOn) startRinging('rise');
         riseArmedDot.className = 'alert-armed-dot fired';
@@ -398,7 +400,7 @@
     }
 
     if (state.fall.enabled){
-      var fallHit = state.price <= state.fall.target;
+      var fallHit = state.price <= state.fall.target0 ? true : false ;  
       if (fallHit && !state.fall.prevHit){
         if (state.chimeOn) startRinging('fall');
         fallArmedDot.className = 'alert-armed-dot fired';
@@ -520,7 +522,7 @@
 		await drawChart(stockId);
 		await updateAlertStatus();
 		id=setInterval(async() => {
-			const marketClosetime = "13:30:00" , marketOpentime = "09:00:00" ; 
+			const marketClosetime = "22:30:00" , marketOpentime = "09:00:00" ; 
 			const [h2, m2, s2] = marketClosetime.split(':').map(Number);
 			const timeToSeconds2= h2 * 3600 + m2 * 60 + s2 ;
 			const [h1, m1, s1] = marketOpentime.split(':').map(Number);
@@ -541,7 +543,7 @@
 
 			 running=false ;
 		},
-	   20000);
+	   8000);
 	   intervalIds.push(id); 
  } 
 
