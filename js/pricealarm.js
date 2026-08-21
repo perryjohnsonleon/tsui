@@ -519,7 +519,7 @@
 		await drawChart(stockId);
 		await updateAlertStatus();
 		id=setInterval(async() => {
-			const marketClosetime = "22:30:00" , marketOpentime = "09:00:00" ; 
+			const marketClosetime = "13:30:00" , marketOpentime = "09:00:00" ; 
 			const [h2, m2, s2] = marketClosetime.split(':').map(Number);
 			const timeToSeconds2= h2 * 3600 + m2 * 60 + s2 ;
 			const [h1, m1, s1] = marketOpentime.split(':').map(Number);
