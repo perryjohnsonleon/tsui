@@ -10,8 +10,8 @@
     dayHigh: 0,
     dayLow: 0,
     history: [],
-    rise: { enabled: true, target: 10.00, target0: 10.00 , prevHit: false },
-    fall: { enabled: false, target: 10.00, target0: 10.00 , prevHit: false },
+    rise: { enabled: true, target: 10.00, prevHit: false },
+    fall: { enabled: false, target: 10.00, prevHit: false },
     chimeOn: true,
     ring: {
       rise: { ringing: false, endAt: 0, timer: null },
@@ -253,22 +253,17 @@
     noAlertLine.style.display = (!state.rise.enabled && !state.fall.enabled) ? 'flex' : 'none';
 
     if (state.rise.enabled){
-	  state.rise.target0 = state.rise.target.toFixed(2) ;
       riseTargetDisplay.textContent = '$' + state.rise.target.toFixed(2);
       riseArmedDot.className = 'alert-armed-dot ' + (state.rise.prevHit ? 'fired' : 'armed');
     }
-    if (state.fall.enabled){
-	  state.fall.target0 = state.fall.target.toFixed(2) ;		
+    if (state.fall.enabled){		
       fallTargetDisplay.textContent = '$' + state.fall.target.toFixed(2);
       fallArmedDot.className = 'alert-armed-dot ' + (state.fall.prevHit ? 'fired' : 'armed');
     }
   }
 
   async function getData(stockId) {
-	  if (firstVisit) {
-		  firstVisit=false;
-		  STOCKID=stockId
-	  }	  
+	  if (firstVisit) STOCKID=stockId ;  
 	  try {
 	  	let fetchUrl_str="" ;
 		let fetchUrl_str1="https://ws.api.cnyes.com/ws/api/v1/charting/history?resolution=1&symbol=TWS:" , fetchUrl_str2=":STOCK&quote=1" ;
@@ -305,7 +300,6 @@
 			const wi_cc=[...wi_c].reverse();
 			const wi_tt=[...wi_t].reverse();
 			const quote_obj = post.data.quote ;
-			// const isGain = m.change >= 0;
 			for ( var n in quote_obj) {
 			   if ( n == "200009" ) itemName=quote_obj[n] ;
 			   if ( n == "11" ) incdecPrice=quote_obj[n] ;
@@ -317,8 +311,11 @@
 				incdectxtPrice="+" + incdecPrice.toString()
 		    else incdectxtPrice= incdecPrice ;
 		    midPrice=itemPrice-incdecPrice;
-			state.rise.target= midPrice*1.1 ;
-			state.fall.target= midPrice*0.9 ;			
+			if (firstVisit) {
+				firstVisit= false ;
+				state.rise.target= midPrice*1.1 ;
+				state.fall.target= midPrice*0.9 ;
+			}	
 		    state.sym=itemName;
 		    state.price=itemPrice ;
 			state.flat=midPrice ;
@@ -389,7 +386,7 @@
 
   function checkAlert(){
     if (state.rise.enabled){
-      var riseHit = state.price >= state.rise.target0 ? true : false ;	   	  
+      var riseHit = state.price >= state.rise.target ? true : false ;	  
       if (riseHit && !state.rise.prevHit){
         if (state.chimeOn) startRinging('rise');
         riseArmedDot.className = 'alert-armed-dot fired';
@@ -400,7 +397,7 @@
     }
 
     if (state.fall.enabled){
-      var fallHit = state.price <= state.fall.target0 ? true : false ;  
+      var fallHit = state.price <= state.fall.target ? true : false ;	  
       if (fallHit && !state.fall.prevHit){
         if (state.chimeOn) startRinging('fall');
         fallArmedDot.className = 'alert-armed-dot fired';
