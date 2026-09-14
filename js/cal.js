@@ -12,8 +12,16 @@
 	const url=window.location.search;
 	// stockId = url.substring(url.indexOf('=') + 1);
 	const stockId = url.substring(9); 
-	// isETF = stockId.at(-1) === 'A' ? true : false ;
-	if (stockId.slice(0,2) === '00') {isETF = true} else {isETF = false} ;  
+	if (stockId.slice(0,2) === '00') {isETF = true} else {isETF = false} ; 
+	if (isETF == false) {
+		document.querySelectorAll('.taxPreset').forEach((b,index) => b.classList.remove('active')) ;
+		document.querySelectorAll('.taxPreset').forEach((b,index) => { if (index == 0) b.classList.add('active')})
+	}	
+	else {
+		$('taxRate').value = 0.1;
+		document.querySelectorAll('.taxPreset').forEach((b,index) => b.classList.remove('active')) ;		
+		document.querySelectorAll('.taxPreset').forEach((b,index) => { if (index == 2) b.classList.add('active')}) 
+	}
 	startShow(stockId);
   }); 
 
